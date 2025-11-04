@@ -10,8 +10,8 @@ Fishy Dex is a web-based application designed for fish enthusiasts, marine biolo
 
 ### Core Stack
 
-- **[Next.js 15.5.4](https://nextjs.org/)** - React framework with App Router and Turbopack
-- **[React 19.1.0](https://react.dev/)** - UI library
+- **[Next.js 16](https://nextjs.org/)** - React framework with App Router and Turbopack
+- **[React 19](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
 - **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework
 
@@ -173,7 +173,6 @@ Fishy Dex is a web-based application designed for fish enthusiasts, marine biolo
   - Push notification system to alert friends when you spot rare or interesting fish
   - Progressive Web App (PWA) implementation for mobile-like notifications on web
   - Share sightings to social media platforms
-  - In-app sharing with custom messages
 
 ### Historical Data Analysis
 
@@ -199,14 +198,3 @@ Fishy Dex is a web-based application designed for fish enthusiasts, marine biolo
   - Difficulty levels that scale with user rank
   - Daily challenges or quiz streaks for additional engagement
   - Learning mode that provides information about fish after each question
-
-### API Enhancement
-
-- Run the API locally for development and testing
-- Additional endpoints for:
-  - User sighting history
-  - Friend relationships
-  - Achievement tracking
-  - Leaderboard queries
-  - Advanced filtering and search
-- Add data models for new features (photos, social connections, rankings)
