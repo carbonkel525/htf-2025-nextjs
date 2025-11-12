@@ -57,6 +57,13 @@
       "when": 1762955741980,
       "tag": "0007_violet_natasha_romanoff",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1762958147893,
+      "tag": "0008_smooth_venom",
+      "breakpoints": true
     }
   ]
 }

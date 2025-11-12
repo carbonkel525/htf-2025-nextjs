@@ -57,6 +57,11 @@ export default function FishTrackerLayout({ fishes, sortedFishes }: FishTrackerL
             </Link>
           </div>
           <div className="border border-panel-border shadow-[--shadow-cockpit-border] px-3 py-1 rounded">
+            <Link href="/challenges">
+              <span className="text-text-secondary">CHALLENGES</span>
+            </Link>
+          </div>
+          <div className="border border-panel-border shadow-[--shadow-cockpit-border] px-3 py-1 rounded">
             <UserInfo />
           </div>
         </div>
