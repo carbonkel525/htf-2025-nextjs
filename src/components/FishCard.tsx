@@ -18,13 +18,10 @@ interface FishCardProps {
   onHover?: (fishId: string | null) => void;
 }
 
-export default function FishCard({
-  fish,
-  onHover,
-}: FishCardProps) {
-  const handleAddToDex = async (fishId: string) => {
+export default function FishCard({ fish, onHover }: FishCardProps) {
+  const handleAddToDex = async () => {
     try {
-      await addFishToDex(fishId);
+      await addFishToDex(fish);
       // Show success message or update UI
     } catch (error) {
       console.error("Error adding fish:", error);
@@ -90,7 +87,7 @@ export default function FishCard({
       </ContextMenuTrigger>
       <ContextMenuContent className="bg-dark-navy border-panel-border">
         <ContextMenuItem
-          onClick={() => handleAddToDex(fish.id)}
+          onClick={handleAddToDex}
           className="focus:bg-sonar-green/20 focus:text-sonar-green cursor-pointer text-text-primary"
         >
           <PlusIcon className="mr-2 h-4 w-4" />

@@ -1,3 +1,5 @@
+import { Fish } from "@/types/fish";
+
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_FISH_API_URL ?? "http://localhost:5555/api";
 
@@ -42,13 +44,19 @@ export const fetchFishById = async (fishId: string) => {
   return fallbackFish;
 };
 
-export const addFishToDex = async (fishId: string) => {
+export const addFishToDex = async (fish: Fish) => {
   const response = await fetch("/api/fishdex", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ fishId }),
+    body: JSON.stringify({
+      fishId: fish.id,
+      name: fish.name,
+      image: fish.image,
+      rarity: fish.rarity,
+      latestSighting: fish.latestSighting,
+    }),
   });
 
   if (!response.ok) {

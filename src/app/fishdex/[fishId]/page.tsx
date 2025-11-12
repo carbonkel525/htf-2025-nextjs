@@ -6,11 +6,11 @@ import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import { fishDex } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
-import { fetchFishById } from "@/api/fish";
 import FishDetailClient from "@/components/FishDetailClient";
+import { Fish } from "@/types/fish";
 
 interface FishDetailPageProps {
-  params: { fishId: string };
+  params: Promise<{ fishId: string }>;
 }
 
 export default async function FishDetailPage({ params }: FishDetailPageProps) {
@@ -24,24 +24,45 @@ export default async function FishDetailPage({ params }: FishDetailPageProps) {
     redirect("/login");
   }
 
-  const fish = await fetchFishById(fishId).catch(() => null);
-
-  if (!fish) {
-    notFound();
-  }
-
+  // Fetch fish from database
   const dexEntry = await db
     .select({
       id: fishDex.id,
+      fishId: fishDex.fishId,
+      name: fishDex.name,
+      image: fishDex.image,
+      rarity: fishDex.rarity,
+      latestSightingLatitude: fishDex.latestSightingLatitude,
+      latestSightingLongitude: fishDex.latestSightingLongitude,
+      latestSightingTimestamp: fishDex.latestSightingTimestamp,
       createdAt: fishDex.createdAt,
     })
     .from(fishDex)
     .where(and(eq(fishDex.userId, session.user.id), eq(fishDex.fishId, fishId)))
     .limit(1);
 
-  const isCollected = dexEntry.length > 0;
-  const collectedAt = dexEntry[0]?.createdAt
-    ? new Date(dexEntry[0].createdAt).toISOString()
+  if (dexEntry.length === 0) {
+    notFound();
+  }
+
+  const entry = dexEntry[0];
+
+  // Transform to Fish type format
+  const fish: Fish = {
+    id: entry.fishId,
+    name: entry.name,
+    image: entry.image || "",
+    rarity: entry.rarity,
+    latestSighting: {
+      latitude: entry.latestSightingLatitude,
+      longitude: entry.latestSightingLongitude,
+      timestamp: entry.latestSightingTimestamp,
+    },
+  };
+
+  const isCollected = true; // If we found it in the DB, it's collected
+  const collectedAt = entry.createdAt
+    ? new Date(entry.createdAt).toISOString()
     : null;
 
   return (

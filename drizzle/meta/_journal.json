@@ -22,6 +22,13 @@
       "when": 1762939551827,
       "tag": "0002_huge_xorn",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1762942201799,
+      "tag": "0003_burly_kate_bishop",
+      "breakpoints": true
     }
   ]
 }

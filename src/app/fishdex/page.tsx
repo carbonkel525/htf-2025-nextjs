@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { fishDex } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { fetchFishes } from "@/api/fish";
+import { fetchFishes } from "@/api/fish"; // Only used for total count
 import { getRarityOrder } from "@/utils/rarity";
 import FishDexClient from "@/components/FishDexClient";
 import { Fish } from "@/types/fish";
@@ -20,31 +20,42 @@ export default async function FishDex() {
     redirect("/login");
   }
 
-  // Get user's fish dex
+  // Get user's fish dex with full fish data from database
   const userFishDex = await db
     .select({
       id: fishDex.id,
       fishId: fishDex.fishId,
+      name: fishDex.name,
+      image: fishDex.image,
+      rarity: fishDex.rarity,
+      latestSightingLatitude: fishDex.latestSightingLatitude,
+      latestSightingLongitude: fishDex.latestSightingLongitude,
+      latestSightingTimestamp: fishDex.latestSightingTimestamp,
       createdAt: fishDex.createdAt,
     })
     .from(fishDex)
     .where(eq(fishDex.userId, session.user.id));
 
-  // Fetch all fishes from external API
-  const allFishes = await fetchFishes();
-
-  // Filter to only show fishes in user's dex
-  const dexFishIds = new Set(userFishDex.map((entry) => entry.fishId));
-  const collectedFishes: Fish[] = allFishes.filter((fish: Fish) =>
-    dexFishIds.has(fish.id)
-  );
+  // Transform to Fish type format
+  const collectedFishes: Fish[] = userFishDex.map((entry) => ({
+    id: entry.fishId,
+    name: entry.name,
+    image: entry.image || "",
+    rarity: entry.rarity,
+    latestSighting: {
+      latitude: entry.latestSightingLatitude,
+      longitude: entry.latestSightingLongitude,
+      timestamp: entry.latestSightingTimestamp,
+    },
+  }));
 
   // Sort by rarity (rarest first)
   const sortedFishes = [...collectedFishes].sort(
     (a, b) => getRarityOrder(a.rarity) - getRarityOrder(b.rarity)
   );
 
-  // Calculate stats
+  // Calculate stats - fetch total from external API for completion percentage
+  const allFishes = await fetchFishes();
   const totalFishes = allFishes.length;
   const collectedCount = collectedFishes.length;
   const completionPercentage =

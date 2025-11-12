@@ -15,6 +15,7 @@ import {
 import { TrashIcon } from "lucide-react";
 import { removeFishFromDex } from "@/api/fish";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface FishCardWithErrorHandlingProps {
   fish: Fish;
@@ -120,67 +121,69 @@ function FishCardWithErrorHandling({
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
-        <div className="border border-panel-border shadow-[--shadow-cockpit-border] rounded-lg overflow-hidden hover:border-sonar-green transition-all duration-300 cursor-pointer group bg-[color-mix(in_srgb,var(--color-dark-navy)_90%,transparent)]">
-          {/* Fish Image */}
-          <div className="relative w-full aspect-square bg-deep-ocean overflow-hidden">
-            {fish.image && !imageError ? (
-              <Image
-                src={fish.image}
-                alt={fish.name}
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-300"
-                unoptimized
-                onError={() => setImageError(true)}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-text-secondary">
-                <div className="text-4xl">🐟</div>
-              </div>
-            )}
-            {/* Rarity Badge Overlay */}
-            <div className="absolute top-2 right-2 z-10">
-              <div
-                className={`px-2 py-0.5 rounded text-[10px] font-bold ${getRarityBadgeClass(
-                  fish.rarity
-                )}`}
-              >
-                {fish.rarity}
+        <Link href={`/fishdex/${fish.id}`}>
+          <div className="border border-panel-border shadow-[--shadow-cockpit-border] rounded-lg overflow-hidden hover:border-sonar-green transition-all duration-300 cursor-pointer group bg-[color-mix(in_srgb,var(--color-dark-navy)_90%,transparent)]">
+            {/* Fish Image */}
+            <div className="relative w-full aspect-square bg-deep-ocean overflow-hidden">
+              {fish.image && !imageError ? (
+                <Image
+                  src={fish.image}
+                  alt={fish.name}
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform duration-300"
+                  unoptimized
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-text-secondary">
+                  <div className="text-4xl">🐟</div>
+                </div>
+              )}
+              {/* Rarity Badge Overlay */}
+              <div className="absolute top-2 right-2 z-10">
+                <div
+                  className={`px-2 py-0.5 rounded text-[10px] font-bold ${getRarityBadgeClass(
+                    fish.rarity
+                  )}`}
+                >
+                  {fish.rarity}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Fish Info */}
-          <div className="p-3">
-            <div className="text-sm font-bold text-text-primary group-hover:text-sonar-green transition-colors mb-2 font-mono">
-              {fish.name}
-            </div>
-            <div className="text-xs font-mono space-y-1">
-              <div className="flex justify-between text-text-secondary">
-                <span>LAT:</span>
-                <span className="text-sonar-green">
-                  {fish.latestSighting.latitude.toFixed(4)}
-                </span>
+            {/* Fish Info */}
+            <div className="p-3">
+              <div className="text-sm font-bold text-text-primary group-hover:text-sonar-green transition-colors mb-2 font-mono">
+                {fish.name}
               </div>
-              <div className="flex justify-between text-text-secondary">
-                <span>LON:</span>
-                <span className="text-sonar-green">
-                  {fish.latestSighting.longitude.toFixed(4)}
-                </span>
-              </div>
-              <div className="flex justify-between text-text-secondary pt-1 border-t border-panel-border">
-                <span>SEEN:</span>
-                <span className="text-warning-amber text-[10px]">
-                  {formatDistanceToNow(
-                    new Date(fish.latestSighting.timestamp),
-                    {
-                      addSuffix: true,
-                    }
-                  )}
-                </span>
+              <div className="text-xs font-mono space-y-1">
+                <div className="flex justify-between text-text-secondary">
+                  <span>LAT:</span>
+                  <span className="text-sonar-green">
+                    {fish.latestSighting.latitude.toFixed(4)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-text-secondary">
+                  <span>LON:</span>
+                  <span className="text-sonar-green">
+                    {fish.latestSighting.longitude.toFixed(4)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-text-secondary pt-1 border-t border-panel-border">
+                  <span>SEEN:</span>
+                  <span className="text-warning-amber text-[10px]">
+                    {formatDistanceToNow(
+                      new Date(fish.latestSighting.timestamp),
+                      {
+                        addSuffix: true,
+                      }
+                    )}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </Link>
       </ContextMenuTrigger>
       <ContextMenuContent className="bg-dark-navy border-panel-border">
         <ContextMenuItem

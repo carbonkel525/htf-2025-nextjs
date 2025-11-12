@@ -17,11 +17,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { fishId } = body;
+    const { fishId, name, image, rarity, latestSighting } = body;
 
-    if (!fishId) {
+    if (!fishId || !name || !rarity || !latestSighting) {
       return NextResponse.json(
-        { error: "Fish ID is required" },
+        { error: "Fish data is incomplete" },
         { status: 400 }
       );
     }
@@ -45,12 +45,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Add to dex
+    // Add to dex with full fish data
     const now = new Date();
     await db.insert(fishDex).values({
       id: nanoid(),
       userId: session.user.id,
       fishId,
+      name,
+      image: image || null,
+      rarity,
+      latestSightingLatitude: latestSighting.latitude,
+      latestSightingLongitude: latestSighting.longitude,
+      latestSightingTimestamp: latestSighting.timestamp,
       createdAt: now,
       updatedAt: now,
     });
@@ -76,18 +82,36 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
   
-      // Get user's fish dex - just return the fish IDs
-      // The frontend can fetch full fish details from the external API
+      // Get user's fish dex with full fish data
       const userFishDex = await db
         .select({
           id: fishDex.id,
           fishId: fishDex.fishId,
+          name: fishDex.name,
+          image: fishDex.image,
+          rarity: fishDex.rarity,
+          latestSightingLatitude: fishDex.latestSightingLatitude,
+          latestSightingLongitude: fishDex.latestSightingLongitude,
+          latestSightingTimestamp: fishDex.latestSightingTimestamp,
           createdAt: fishDex.createdAt,
         })
         .from(fishDex)
         .where(eq(fishDex.userId, session.user.id));
-  
-      return NextResponse.json({ fishDex: userFishDex });
+
+      // Transform to Fish type format
+      const fishes = userFishDex.map((entry) => ({
+        id: entry.fishId,
+        name: entry.name,
+        image: entry.image || "",
+        rarity: entry.rarity,
+        latestSighting: {
+          latitude: entry.latestSightingLatitude,
+          longitude: entry.latestSightingLongitude,
+          timestamp: entry.latestSightingTimestamp,
+        },
+      }));
+
+      return NextResponse.json({ fishDex: fishes });
     } catch (error) {
       console.error("Error fetching fish dex:", error);
       return NextResponse.json(

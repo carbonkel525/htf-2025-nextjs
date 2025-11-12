@@ -48,7 +48,7 @@ export default function FishDetailClient({
         await removeFishFromDex(fish.id);
         setIsCollected(false);
       } else {
-        await addFishToDex(fish.id);
+        await addFishToDex(fish);
         setIsCollected(true);
       }
 

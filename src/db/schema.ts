@@ -1,4 +1,10 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import {
+  sqliteTable,
+  text,
+  integer,
+  real,
+  unique,
+} from "drizzle-orm/sqlite-core";
 
 // User table
 export const user = sqliteTable("user", {
@@ -56,12 +62,27 @@ export const verification = sqliteTable("verification", {
   updatedAt: integer("updatedAt", { mode: "timestamp" }),
 });
 
-export const fishDex = sqliteTable("fishDex", {
-  id: text("id").primaryKey(),
-  userId: text("userId")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  fishId: text("fishId").notNull(),
-  createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
-  updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
-});
+export const fishDex = sqliteTable(
+  "fishDex",
+  {
+    id: text("id").primaryKey(),
+    userId: text("userId")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    fishId: text("fishId").notNull(),
+    // Store full fish data
+    name: text("name").notNull(),
+    image: text("image"),
+    rarity: text("rarity").notNull(),
+    // Store latestSighting data
+    latestSightingLatitude: real("latestSightingLatitude").notNull(),
+    latestSightingLongitude: real("latestSightingLongitude").notNull(),
+    latestSightingTimestamp: text("latestSightingTimestamp").notNull(),
+    createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
+    updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
+  },
+  (table) => ({
+    // Add unique constraint to prevent duplicate entries
+    uniqueUserFish: unique().on(table.userId, table.fishId),
+  })
+);
