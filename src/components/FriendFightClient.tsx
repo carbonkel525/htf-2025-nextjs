@@ -104,17 +104,6 @@ export default function FriendFightClient({
     // Show fight interface with user's fish and friend's fish
     return (
       <div className="flex flex-col">
-        <div className="bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] m-6 rounded-lg p-4">
-          <button
-            onClick={() => {
-              setSelectedFriend(null);
-              setFriendFishes([]);
-            }}
-            className="text-sm text-text-secondary hover:text-sonar-green font-mono transition-colors"
-          >
-            ← Back to friend selection
-          </button>
-        </div>
         <FishFightClient
           fishes={userFishes}
           opponentFishes={friendFishes}

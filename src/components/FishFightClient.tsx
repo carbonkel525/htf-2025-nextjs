@@ -394,8 +394,8 @@ export default function FishFightClient({
         </div>
       ) : (
         // Battle Phase
-        <div className="flex-1 flex flex-col bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)]">
-          <div className="flex-1 flex gap-6 p-6">
+        <div className="flex flex-col bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)]">
+          <div className="flex gap-6 p-6">
             {/* Left Side - Fighters */}
             <div className="flex-1 flex flex-col gap-6">
               {/* Fighter 1 */}
