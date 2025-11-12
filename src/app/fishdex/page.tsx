@@ -57,7 +57,7 @@ export default async function FishDex() {
             longitude: entry.fish.latestSightingLongitude,
             timestamp: entry.fish.latestSightingTimestamp,
           }
-        : null,
+        : undefined,
     dexEntry: {
       id: entry.id,
       cpScore: entry.cpScore,

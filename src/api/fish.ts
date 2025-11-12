@@ -123,8 +123,8 @@ export function isFishInDivingCenter(
 ): boolean {
   const radiusKm = center.radiusKm ?? 2.8; // Default to 2.8km if not specified
   const distance = calculateDistance(
-    fish.latestSighting.latitude,
-    fish.latestSighting.longitude,
+    fish.latestSighting?.latitude ?? 0,
+    fish.latestSighting?.longitude ?? 0,
     center.latitude,
     center.longitude
   );
