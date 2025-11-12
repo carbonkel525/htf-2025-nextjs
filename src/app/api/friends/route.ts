@@ -155,3 +155,63 @@ export async function POST(request: Request) {
   }
 }
 
+// DELETE /api/friends - Remove a friend
+export async function DELETE(request: Request) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+    const { friendId } = body;
+
+    if (!friendId || typeof friendId !== "string") {
+      return NextResponse.json(
+        { error: "friendId is required" },
+        { status: 400 }
+      );
+    }
+
+    // Prevent self-removal (though this shouldn't happen)
+    if (friendId === session.user.id) {
+      return NextResponse.json(
+        { error: "Cannot remove yourself" },
+        { status: 400 }
+      );
+    }
+
+    // Find and delete friendship in either direction
+    const deletedFriendships = await db
+      .delete(friends)
+      .where(
+        or(
+          and(eq(friends.userId, session.user.id), eq(friends.friendId, friendId)),
+          and(eq(friends.userId, friendId), eq(friends.friendId, session.user.id))
+        )
+      )
+      .returning();
+
+    if (deletedFriendships.length === 0) {
+      return NextResponse.json(
+        { error: "Friendship not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Friend removed successfully",
+    });
+  } catch (error) {
+    console.error("Error removing friend:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+

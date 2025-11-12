@@ -5,7 +5,7 @@ import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Copy, UserPlus, User, Check } from "lucide-react";
+import { Copy, UserPlus, User, Check, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Friend {
@@ -24,6 +24,7 @@ export default function FriendsClient({ userId }: { userId: string }) {
   const [addingFriend, setAddingFriend] = useState(false);
   const [friendIdInput, setFriendIdInput] = useState("");
   const [copied, setCopied] = useState(false);
+  const [removingFriendId, setRemovingFriendId] = useState<string | null>(null);
 
   // Fetch friends list
   const fetchFriends = async () => {
@@ -91,6 +92,38 @@ export default function FriendsClient({ userId }: { userId: string }) {
       toast.error("Error adding friend");
     } finally {
       setAddingFriend(false);
+    }
+  };
+
+  // Remove a friend
+  const handleRemoveFriend = async (friendId: string) => {
+    if (!confirm("Are you sure you want to remove this friend?")) {
+      return;
+    }
+
+    setRemovingFriendId(friendId);
+    try {
+      const response = await fetch("/api/friends", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ friendId }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Friend removed successfully");
+        fetchFriends(); // Refresh friends list
+      } else {
+        toast.error(data.error || "Failed to remove friend");
+      }
+    } catch (error) {
+      console.error("Error removing friend:", error);
+      toast.error("Error removing friend");
+    } finally {
+      setRemovingFriendId(null);
     }
   };
 
@@ -209,6 +242,15 @@ export default function FriendsClient({ userId }: { userId: string }) {
                       </div>
                     </div>
                   </div>
+                  <Button
+                    onClick={() => handleRemoveFriend(friend.userId)}
+                    disabled={removingFriendId === friend.userId}
+                    variant="destructive"
+                    size="icon-sm"
+                    className="bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 text-red-400 hover:text-red-300"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               ))}
             </div>
