@@ -90,7 +90,7 @@ export default async function FishDex() {
   ).length;
 
   return (
-    <div className="w-full h-screen flex flex-col relative overflow-hidden">
+    <div className="w-full flex flex-col relative">
       {/* Scanline effect */}
       <div className="fixed top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-[color-mix(in_srgb,var(--color-sonar-green)_10%,transparent)] to-transparent animate-scanline pointer-events-none z-9999"></div>
 

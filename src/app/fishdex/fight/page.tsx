@@ -4,10 +4,11 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { fishDex, fish } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { fishDex, fish, friends, user } from "@/db/schema";
+import { eq, or, and } from "drizzle-orm";
 import FishFightClient from "@/components/FishFightClient";
 import { Fish } from "@/types/fish";
+import FriendFightClient from "@/components/FriendFightClient";
 
 export default async function FishFightPage() {
   const session = await auth.api.getSession({
@@ -64,8 +65,53 @@ export default async function FishFightPage() {
     },
   }));
 
+  // Get friends where user is the initiator (userId)
+  const friendsAsUser = await db
+    .select({
+      id: friends.id,
+      friend: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        image: user.image,
+      },
+      createdAt: friends.createdAt,
+    })
+    .from(friends)
+    .innerJoin(user, eq(friends.friendId, user.id))
+    .where(eq(friends.userId, session.user.id));
+
+  // Get friends where user is the friend (friendId)
+  const friendsAsFriend = await db
+    .select({
+      id: friends.id,
+      friend: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        image: user.image,
+      },
+      createdAt: friends.createdAt,
+    })
+    .from(friends)
+    .innerJoin(user, eq(friends.userId, user.id))
+    .where(eq(friends.friendId, session.user.id));
+
+  // Combine both lists
+  const allFriends = [...friendsAsUser, ...friendsAsFriend];
+
+  // Transform to simplify
+  const friendsList = allFriends.map((f) => ({
+    id: f.id,
+    userId: f.friend.id,
+    name: f.friend.name,
+    email: f.friend.email,
+    image: f.friend.image,
+    createdAt: f.createdAt,
+  }));
+
   return (
-    <div className="w-full h-screen flex flex-col relative">
+    <div className="w-full flex flex-col relative">
       {/* Scanline effect */}
       <div className="fixed top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-[color-mix(in_srgb,var(--color-sonar-green)_10%,transparent)] to-transparent animate-scanline pointer-events-none z-9999"></div>
 
@@ -106,7 +152,7 @@ export default async function FishFightPage() {
       </div>
 
       {/* Fight Arena */}
-      <FishFightClient fishes={collectedFishes} />
+      <FriendFightClient userFishes={collectedFishes} friends={friendsList} />
     </div>
   );
 }
