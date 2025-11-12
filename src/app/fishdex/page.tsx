@@ -3,6 +3,9 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { db } from "@/db";
+import { fishDex } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 export default async function FishDex() {
   const session = await auth.api.getSession({
@@ -12,6 +15,17 @@ export default async function FishDex() {
   if (!session) {
     redirect("/login");
   }
+
+  // Query database directly instead of using fetch
+  const userFishDex = await db
+    .select({
+      id: fishDex.id,
+      fishId: fishDex.fishId,
+      createdAt: fishDex.createdAt,
+    })
+    .from(fishDex)
+    .where(eq(fishDex.userId, session.user.id));
+
 
   return (
     <div className="w-full h-screen flex flex-col relative overflow-hidden">
@@ -35,7 +49,7 @@ export default async function FishDex() {
             <UserInfo />
           </div>
         </div>
-      </div>    
+      </div>
     </div>
   );
 }

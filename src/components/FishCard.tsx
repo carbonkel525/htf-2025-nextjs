@@ -11,6 +11,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { PlusIcon, TrashIcon } from "lucide-react";
+import { addFishToDex, removeFishFromDex } from "@/api/fish";
 
 interface FishCardProps {
   fish: Fish;
@@ -25,15 +26,23 @@ export default function FishCard({
   onAddToDex,
   onDelete,
 }: FishCardProps) {
-  const handleAddToDex = () => {
-    onAddToDex?.(fish.id);
+  const handleAddToDex = async (fishId: string) => {
+    try {
+      await addFishToDex(fishId);
+      // Show success message or update UI
+    } catch (error) {
+      console.error("Error adding fish:", error);
+      // Show error message
+    }
   };
 
-  const handleDelete = () => {
-    if (
-      confirm(`Are you sure you want to delete ${fish.name} from your dex?`)
-    ) {
-      onDelete?.(fish.id);
+  const handleDelete = async (fishId: string) => {
+    try {
+      await removeFishFromDex(fishId);
+      // Show success message or update UI
+    } catch (error) {
+      console.error("Error deleting fish:", error);
+      // Show error message
     }
   };
 
@@ -85,7 +94,7 @@ export default function FishCard({
       </ContextMenuTrigger>
       <ContextMenuContent className="bg-dark-navy border-panel-border">
         <ContextMenuItem
-          onClick={handleAddToDex}
+          onClick={() => handleAddToDex(fish.id)}
           className="focus:bg-sonar-green/20 focus:text-sonar-green cursor-pointer text-text-primary"
         >
           <PlusIcon className="mr-2 h-4 w-4" />
@@ -93,7 +102,7 @@ export default function FishCard({
         </ContextMenuItem>
         <ContextMenuSeparator className="bg-panel-border" />
         <ContextMenuItem
-          onClick={handleDelete}
+          onClick={() => handleDelete(fish.id)}
           variant="destructive"
           className="focus:bg-danger-red/20 focus:text-danger-red cursor-pointer"
         >
