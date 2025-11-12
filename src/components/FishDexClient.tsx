@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Fish } from "@/types/fish";
-import { getRarityBadgeClass, getRarityOrder } from "@/utils/rarity";
+import { getRarityBadgeClass } from "@/utils/rarity";
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
 import {
@@ -71,7 +71,7 @@ export default function FishDexClient({ fishes }: FishDexClientProps) {
     <div className="flex-1 overflow-hidden flex flex-col bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] m-6 rounded-lg">
       {/* Filter Bar */}
       <div className="px-6 py-3 border-b border-panel-border flex items-center justify-between">
-        <div className="text-sm font-bold text-sonar-green [text-shadow:--shadow-glow-text] font-mono">
+        <div className="text-sm font-bold text-sonar-green text-shadow-[--shadow-glow-text] font-mono">
           COLLECTED SPECIMENS ({filteredFishes.length})
         </div>
         <div className="flex gap-2">

@@ -64,12 +64,12 @@ export default async function FishDex() {
   return (
     <div className="w-full h-screen flex flex-col relative overflow-hidden">
       {/* Scanline effect */}
-      <div className="fixed top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[color-mix(in_srgb,var(--color-sonar-green)_10%,transparent)] to-transparent animate-scanline pointer-events-none z-[9999]"></div>
+      <div className="fixed top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-[color-mix(in_srgb,var(--color-sonar-green)_10%,transparent)] to-transparent animate-scanline pointer-events-none z-9999"></div>
 
       {/* Header */}
-      <div className="bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] px-6 py-3 border-b-2 border-panel-border flex items-center justify-between z-10">
+      <div className="bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] px-6 py-3 border-b-2 flex items-center justify-between z-10">
         <div className="flex items-center gap-4">
-          <div className="text-2xl font-bold [text-shadow:--shadow-glow-text] text-sonar-green">
+          <div className="text-2xl font-bold text-shadow-[--shadow-glow-text] text-sonar-green">
             FISH DEX
           </div>
           <div className="text-xs text-text-secondary font-mono">
@@ -96,13 +96,13 @@ export default async function FishDex() {
       </div>
 
       {/* Stats Panel */}
-      <div className="bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] px-6 py-4 border-b-2 border-panel-border">
+      <div className="bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] px-6 py-4 border-b-2">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <div className="border border-panel-border shadow-[--shadow-cockpit-border] px-4 py-3 rounded">
             <div className="text-xs font-mono text-text-secondary mb-1">
               COLLECTED
             </div>
-            <div className="text-2xl font-bold text-sonar-green [text-shadow:--shadow-glow-text]">
+            <div className="text-2xl font-bold text-sonar-green text-shadow-[--shadow-glow-text]">
               {collectedCount}
             </div>
             <div className="text-xs font-mono text-text-secondary mt-1">
@@ -113,7 +113,7 @@ export default async function FishDex() {
             <div className="text-xs font-mono text-text-secondary mb-1">
               COMPLETION
             </div>
-            <div className="text-2xl font-bold text-sonar-green [text-shadow:--shadow-glow-text]">
+            <div className="text-2xl font-bold text-sonar-green text-shadow-[--shadow-glow-text]">
               {completionPercentage}%
             </div>
             <div className="w-full bg-deep-ocean h-1.5 mt-2 rounded overflow-hidden">
@@ -127,7 +127,7 @@ export default async function FishDex() {
             <div className="text-xs font-mono text-text-secondary mb-1">
               COMMON
             </div>
-            <div className="text-2xl font-bold text-sonar-green [text-shadow:--shadow-glow-text]">
+            <div className="text-2xl font-bold text-sonar-green text-shadow-[--shadow-glow-text]">
               {commonCount}
             </div>
           </div>
@@ -135,7 +135,7 @@ export default async function FishDex() {
             <div className="text-xs font-mono text-text-secondary mb-1">
               RARE
             </div>
-            <div className="text-2xl font-bold text-warning-amber [text-shadow:--shadow-glow-text]">
+            <div className="text-2xl font-bold text-warning-amber text-shadow-[--shadow-glow-text]">
               {rareCount}
             </div>
           </div>
@@ -143,7 +143,7 @@ export default async function FishDex() {
             <div className="text-xs font-mono text-text-secondary mb-1">
               EPIC
             </div>
-            <div className="text-2xl font-bold text-danger-red [text-shadow:--shadow-glow-text]">
+            <div className="text-2xl font-bold text-danger-red text-shadow-[--shadow-glow-text]">
               {epicCount}
             </div>
           </div>
