@@ -14,6 +14,13 @@ import {
   Loader2Icon,
   MapPinIcon,
   WavesIcon,
+  SparklesIcon,
+  UtensilsIcon,
+  RulerIcon,
+  ShieldAlertIcon,
+  HomeIcon,
+  ActivityIcon,
+  LightbulbIcon,
 } from "lucide-react";
 
 interface FishDetailClientProps {
@@ -31,6 +38,15 @@ export default function FishDetailClient({
   const [isCollected, setIsCollected] = useState(initialIsCollected);
   const [isProcessing, setIsProcessing] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
+  const [insights, setInsights] = useState<{
+    food: string[];
+    maxSize: string;
+    enemies: string[];
+    habitat: string;
+    behavior: string;
+    funFact: string;
+  } | null>(null);
 
   const collectedAtLabel = useMemo(() => {
     if (!collectedAt) return null;
@@ -64,6 +80,27 @@ export default function FishDetailClient({
       setIsCollected(initialIsCollected);
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handleGenerateInsights = async () => {
+    try {
+      setIsGeneratingInsights(true);
+      const response = await fetch(`/api/fish/${fish.id}/insights`);
+
+      if (!response.ok) {
+        throw new Error("Failed to generate insights");
+      }
+
+      const data = await response.json();
+      setInsights(data.insights);
+    } catch (error) {
+      console.error("Failed to generate insights:", error);
+      alert(
+        "Something went wrong while generating insights. Please try again."
+      );
+    } finally {
+      setIsGeneratingInsights(false);
     }
   };
 
@@ -192,16 +229,137 @@ export default function FishDetailClient({
           </div>
 
           <div className="bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] rounded-lg p-6">
-            {/* <div className="text-sm font-bold text-sonar-green font-mono">
-              Observation Notes
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-sm font-bold text-sonar-green font-mono flex items-center gap-2">
+                <SparklesIcon className="h-4 w-4" />
+                AI Insights
+              </div>
+              <Button
+                onClick={handleGenerateInsights}
+                disabled={isGeneratingInsights}
+                className="text-deep-ocean bg-sonar-green hover:bg-sonar-green/80 disabled:opacity-50"
+              >
+                {isGeneratingInsights ? (
+                  <>
+                    <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <SparklesIcon className="mr-2 h-4 w-4" />
+                    Generate AI Insights
+                  </>
+                )}
+              </Button>
             </div>
-            <div className="text-xs text-text-secondary font-mono mt-3 leading-relaxed">
-              This record aggregates the most recent telemetry and sighting data
-              from the global sonar array. Detailed biological data can be
-              fetched from the external marine knowledge base. Maintain visual
-              confirmation and update your Fish Dex with photographic evidence
-              when available.
-            </div> */}
+
+            {isGeneratingInsights && !insights && (
+              <div className="space-y-3 mt-4">
+                <div className="flex items-center gap-2 text-xs text-text-secondary font-mono">
+                  <div className="h-2 w-2 bg-sonar-green rounded-full animate-pulse"></div>
+                  Scanning biological data...
+                </div>
+                <div className="flex items-center gap-2 text-xs text-text-secondary font-mono">
+                  <div
+                    className="h-2 w-2 bg-sonar-green rounded-full animate-pulse"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                  Analyzing habitat patterns...
+                </div>
+                <div className="flex items-center gap-2 text-xs text-text-secondary font-mono">
+                  <div
+                    className="h-2 w-2 bg-sonar-green rounded-full animate-pulse"
+                    style={{ animationDelay: "0.4s" }}
+                  ></div>
+                  Processing behavioral data...
+                </div>
+              </div>
+            )}
+
+            {insights && (
+              <div className="space-y-4 mt-4 animate-in fade-in duration-500">
+                <InsightSection
+                  icon={<UtensilsIcon className="h-4 w-4" />}
+                  title="Diet & Nutrition"
+                  content={
+                    <div className="flex flex-wrap gap-2">
+                      {insights.food.map((food, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2 py-1 bg-sonar-green/10 border border-sonar-green/30 rounded text-xs text-sonar-green font-mono"
+                        >
+                          {food}
+                        </span>
+                      ))}
+                    </div>
+                  }
+                />
+
+                <InsightSection
+                  icon={<RulerIcon className="h-4 w-4" />}
+                  title="Maximum Size"
+                  content={
+                    <span className="text-text-primary font-mono font-bold">
+                      {insights.maxSize}
+                    </span>
+                  }
+                />
+
+                <InsightSection
+                  icon={<ShieldAlertIcon className="h-4 w-4" />}
+                  title="Natural Predators"
+                  content={
+                    <div className="flex flex-wrap gap-2">
+                      {insights.enemies.map((enemy, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2 py-1 bg-danger-red/10 border border-danger-red/30 rounded text-xs text-danger-red font-mono"
+                        >
+                          {enemy}
+                        </span>
+                      ))}
+                    </div>
+                  }
+                />
+
+                <InsightSection
+                  icon={<HomeIcon className="h-4 w-4" />}
+                  title="Habitat"
+                  content={
+                    <span className="text-text-primary font-mono">
+                      {insights.habitat}
+                    </span>
+                  }
+                />
+
+                <InsightSection
+                  icon={<ActivityIcon className="h-4 w-4" />}
+                  title="Behavior"
+                  content={
+                    <span className="text-text-primary font-mono">
+                      {insights.behavior}
+                    </span>
+                  }
+                />
+
+                <InsightSection
+                  icon={<LightbulbIcon className="h-4 w-4" />}
+                  title="Fun Fact"
+                  content={
+                    <span className="text-text-primary font-mono italic">
+                      {insights.funFact}
+                    </span>
+                  }
+                />
+              </div>
+            )}
+
+            {!insights && !isGeneratingInsights && (
+              <div className="text-xs text-text-secondary font-mono mt-3 leading-relaxed">
+                Click the button above to generate AI-powered insights about
+                this fish species.
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -232,6 +390,26 @@ function DetailStat({ label, value, icon, spanCols = false }: DetailStatProps) {
           {value}
         </div>
       </div>
+    </div>
+  );
+}
+
+interface InsightSectionProps {
+  icon: React.ReactNode;
+  title: string;
+  content: React.ReactNode;
+}
+
+function InsightSection({ icon, title, content }: InsightSectionProps) {
+  return (
+    <div className="border border-panel-border shadow-[--shadow-cockpit-border] rounded-lg p-3">
+      <div className="flex items-center gap-2 mb-2">
+        <div className="text-sonar-green">{icon}</div>
+        <div className="text-xs font-bold text-sonar-green font-mono uppercase tracking-wide">
+          {title}
+        </div>
+      </div>
+      <div className="text-xs text-text-primary font-mono ml-6">{content}</div>
     </div>
   );
 }
