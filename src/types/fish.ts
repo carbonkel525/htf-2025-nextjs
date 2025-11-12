@@ -3,11 +3,11 @@ export interface Fish {
   name: string;
   image: string;
   rarity: string;
-  latestSighting: {
+  latestSighting?: {
     latitude: number;
     longitude: number;
     timestamp: string;
-  };
+  } | null;
 }
 
 export type Rarity = "COMMON" | "RARE" | "EPIC";

@@ -151,15 +151,17 @@ export default function FishDetailClient({
                 <div className="text-3xl font-bold text-sonar-green font-mono">
                   {fish.name}
                 </div>
-                <div className="text-xs font-mono text-text-secondary mt-2">
-                  Last sighting{" "}
-                  {formatDistanceToNow(
-                    new Date(fish.latestSighting.timestamp),
-                    {
-                      addSuffix: true,
-                    }
-                  )}
-                </div>
+                {fish.latestSighting && (
+                  <div className="text-xs font-mono text-text-secondary mt-2">
+                    Last sighting{" "}
+                    {formatDistanceToNow(
+                      new Date(fish.latestSighting.timestamp),
+                      {
+                        addSuffix: true,
+                      }
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -198,35 +200,39 @@ export default function FishDetailClient({
             </div>
           </div>
 
-          <div className="bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] rounded-lg p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <DetailStat
-                label="Latitude"
-                value={fish.latestSighting.latitude.toFixed(6)}
-                icon={<MapPinIcon className="h-4 w-4" />}
-              />
-              <DetailStat
-                label="Longitude"
-                value={fish.latestSighting.longitude.toFixed(6)}
-                icon={<MapPinIcon className="h-4 w-4 rotate-90" />}
-              />
-              <DetailStat
-                label="Last Seen"
-                value={format(new Date(fish.latestSighting.timestamp), "PPpp")}
-                icon={<WavesIcon className="h-4 w-4" />}
-                spanCols
-              />
+          {fish.latestSighting && (
+            <div className="bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] rounded-lg p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <DetailStat
+                  label="Latitude"
+                  value={fish.latestSighting.latitude.toFixed(6)}
+                  icon={<MapPinIcon className="h-4 w-4" />}
+                />
+                <DetailStat
+                  label="Longitude"
+                  value={fish.latestSighting.longitude.toFixed(6)}
+                  icon={<MapPinIcon className="h-4 w-4 rotate-90" />}
+                />
+                <DetailStat
+                  label="Last Seen"
+                  value={format(new Date(fish.latestSighting.timestamp), "PPpp")}
+                  icon={<WavesIcon className="h-4 w-4" />}
+                  spanCols
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="space-y-6">
-          <div className="bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] rounded-lg overflow-hidden h-[420px]">
-            <div className="px-6 py-4 border-b border-panel-border text-sm font-mono text-sonar-green">
-              Real-time sonar map
+          {fish.latestSighting && (
+            <div className="bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] rounded-lg overflow-hidden h-[420px]">
+              <div className="px-6 py-4 border-b border-panel-border text-sm font-mono text-sonar-green">
+                Real-time sonar map
+              </div>
+              <MapComponent fishes={[fish]} hoveredFishId={fish.id} />
             </div>
-            <MapComponent fishes={[fish]} hoveredFishId={fish.id} />
-          </div>
+          )}
 
           <div className="bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">

@@ -1,9 +1,13 @@
 "use client";
 
 import { UserInfo } from "./AuthProvider";
-import FishTrackerClient from "./FishTrackerClient";
+import dynamic from "next/dynamic";
 import { Fish } from "@/types/fish";
 import Link from "next/link";
+
+const FishTrackerClient = dynamic(() => import("./FishTrackerClient"), {
+  ssr: false,
+});
 
 interface FishTrackerLayoutProps {
   fishes: Fish[];
@@ -40,6 +44,11 @@ export default function FishTrackerLayout({ fishes, sortedFishes }: FishTrackerL
           <div className="border border-panel-border shadow-[--shadow-cockpit-border] px-3 py-1 rounded">
             <Link href="/fishdex">
               <span className="text-text-secondary">MY FISH DEX</span>
+            </Link>
+          </div>
+          <div className="border border-panel-border shadow-[--shadow-cockpit-border] px-3 py-1 rounded">
+            <Link href="/fish">
+              <span className="text-text-secondary">ADD FISH</span>
             </Link>
           </div>
           <div className="border border-panel-border shadow-[--shadow-cockpit-border] px-3 py-1 rounded">

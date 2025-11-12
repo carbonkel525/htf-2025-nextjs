@@ -57,11 +57,16 @@ export default async function FishDetailPage({ params }: FishDetailPageProps) {
     name: entry.fish.name,
     image: entry.fish.image || "",
     rarity: entry.fish.rarity,
-    latestSighting: {
-      latitude: entry.fish.latestSightingLatitude,
-      longitude: entry.fish.latestSightingLongitude,
-      timestamp: entry.fish.latestSightingTimestamp,
-    },
+    latestSighting:
+      entry.fish.latestSightingLatitude !== null &&
+      entry.fish.latestSightingLongitude !== null &&
+      entry.fish.latestSightingTimestamp !== null
+        ? {
+            latitude: entry.fish.latestSightingLatitude,
+            longitude: entry.fish.latestSightingLongitude,
+            timestamp: entry.fish.latestSightingTimestamp,
+          }
+        : null,
   };
 
   const isCollected = true; // If we found it in the DB, it's collected

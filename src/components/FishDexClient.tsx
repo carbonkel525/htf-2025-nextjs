@@ -163,29 +163,38 @@ function FishCardWithErrorHandling({
                 {fish.name}
               </div>
               <div className="text-xs font-mono space-y-1">
-                <div className="flex justify-between text-text-secondary">
-                  <span>LAT:</span>
-                  <span className="text-sonar-green">
-                    {fish.latestSighting.latitude.toFixed(4)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-text-secondary">
-                  <span>LON:</span>
-                  <span className="text-sonar-green">
-                    {fish.latestSighting.longitude.toFixed(4)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-text-secondary pt-1 border-t border-panel-border">
-                  <span>SEEN:</span>
-                  <span className="text-warning-amber text-[10px]">
-                    {formatDistanceToNow(
-                      new Date(fish.latestSighting.timestamp),
-                      {
-                        addSuffix: true,
-                      }
-                    )}
-                  </span>
-                </div>
+                {fish.latestSighting ? (
+                  <>
+                    <div className="flex justify-between text-text-secondary">
+                      <span>LAT:</span>
+                      <span className="text-sonar-green">
+                        {fish.latestSighting.latitude.toFixed(4)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-text-secondary">
+                      <span>LON:</span>
+                      <span className="text-sonar-green">
+                        {fish.latestSighting.longitude.toFixed(4)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-text-secondary pt-1 border-t border-panel-border">
+                      <span>SEEN:</span>
+                      <span className="text-warning-amber text-[10px]">
+                        {formatDistanceToNow(
+                          new Date(fish.latestSighting.timestamp),
+                          {
+                            addSuffix: true,
+                          }
+                        )}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex justify-between text-text-secondary pt-1">
+                    <span>STATUS:</span>
+                    <span className="text-text-secondary text-[10px]">No sightings yet</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

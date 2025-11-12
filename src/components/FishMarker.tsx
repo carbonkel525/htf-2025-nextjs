@@ -32,6 +32,10 @@ export default function FishMarker({
         ? "bg-danger-red text-danger-red"
         : "bg-sonar-green text-sonar-green";
 
+  if (!fish.latestSighting) {
+    return null;
+  }
+
   return (
     <Marker
       longitude={fish.latestSighting.longitude}

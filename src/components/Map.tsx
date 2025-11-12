@@ -16,18 +16,25 @@ const calculateMapCenter = (fishes: Fish[]) => {
     return { latitude: 10.095, longitude: 99.805 };
   }
 
-  const totalLat = fishes.reduce(
-    (sum, fish) => sum + fish.latestSighting.latitude,
+  // Filter out fish without latestSighting
+  const fishesWithSighting = fishes.filter(f => f.latestSighting);
+  
+  if (fishesWithSighting.length === 0) {
+    return { latitude: 10.095, longitude: 99.805 };
+  }
+
+  const totalLat = fishesWithSighting.reduce(
+    (sum, fish) => sum + (fish.latestSighting?.latitude ?? 0),
     0
   );
-  const totalLon = fishes.reduce(
-    (sum, fish) => sum + fish.latestSighting.longitude,
+  const totalLon = fishesWithSighting.reduce(
+    (sum, fish) => sum + (fish.latestSighting?.longitude ?? 0),
     0
   );
 
   return {
-    latitude: totalLat / fishes.length,
-    longitude: totalLon / fishes.length,
+    latitude: totalLat / fishesWithSighting.length,
+    longitude: totalLon / fishesWithSighting.length,
   };
 };
 
@@ -52,14 +59,16 @@ export default function MapComponent({
         }}
         style={{ width: "100%", height: "100%" }}
       >
-        {fishes.map((fish) => (
-          <FishMarker
-            key={fish.id}
-            fish={fish}
-            isHovered={fish.id === hoveredFishId}
-            isAnyHovered={isAnyHovered}
-          />
-        ))}
+        {fishes
+          .filter((fish) => fish.latestSighting)
+          .map((fish) => (
+            <FishMarker
+              key={fish.id}
+              fish={fish}
+              isHovered={fish.id === hoveredFishId}
+              isAnyHovered={isAnyHovered}
+            />
+          ))}
       </Map>
 
       {/* Coordinate display overlay */}
