@@ -24,12 +24,16 @@ interface FishCardProps {
   fish: Fish;
   onHover?: (fishId: string | null) => void;
   selectedDivingCenter?: DivingCenter | null;
+  onTrack?: (fishId: string) => void;
+  isTracked?: boolean;
 }
 
 export default function FishCard({
   fish,
   onHover,
   selectedDivingCenter,
+  onTrack,
+  isTracked,
 }: FishCardProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -51,23 +55,33 @@ export default function FishCard({
   };
 
   const handleClick = (e: React.MouseEvent) => {
-    // Only open dialog on left click, not right click
+    // Single click to track fish swimming history
     if (e.button === 0 || e.type === "click") {
       e.preventDefault();
-      if (!selectedDivingCenter) {
-        // Show message that diving center needs to be selected
-        alert("Please select a diving center first to catch fish!");
-        return;
+      e.stopPropagation();
+      if (onTrack) {
+        onTrack(fish.id);
       }
-      if (!isFishInCenter) {
-        const radius = selectedDivingCenter.radiusKm ?? 2.8;
-        alert(
-          `This fish is not within the selected diving center's area (${radius}km radius)!`
-        );
-        return;
-      }
-      setDialogOpen(true);
     }
+  };
+
+  const handleCatchClick = (e: React.MouseEvent) => {
+    // Use context menu or explicit catch button for catching
+    e.preventDefault();
+    e.stopPropagation();
+    if (!selectedDivingCenter) {
+      // Show message that diving center needs to be selected
+      alert("Please select a diving center first to catch fish!");
+      return;
+    }
+    if (!isFishInCenter) {
+      const radius = selectedDivingCenter.radiusKm ?? 2.8;
+      alert(
+        `This fish is not within the selected diving center's area (${radius}km radius)!`
+      );
+      return;
+    }
+    setDialogOpen(true);
   };
 
   const handleDelete = async (fishId: string) => {
@@ -91,10 +105,15 @@ export default function FishCard({
       <ContextMenu>
         <ContextMenuTrigger asChild>
           <div
-            className="border border-panel-border shadow-[--shadow-cockpit-border] rounded-lg p-3 hover:border-sonar-green transition-all duration-300 cursor-pointer group"
+            className={`border shadow-[--shadow-cockpit-border] rounded-lg p-3 hover:border-sonar-green transition-all duration-300 cursor-pointer group ${
+              isTracked
+                ? "border-sonar-green border-2 bg-sonar-green/10"
+                : "border-panel-border"
+            }`}
             onMouseEnter={() => onHover?.(fish.id)}
             onMouseLeave={() => onHover?.(null)}
             onClick={handleClick}
+            title="Click to track swimming history"
           >
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1">
@@ -163,20 +182,7 @@ export default function FishCard({
         </ContextMenuTrigger>
         <ContextMenuContent className="bg-dark-navy border-panel-border">
           <ContextMenuItem
-            onClick={() => {
-              if (!selectedDivingCenter) {
-                alert("Please select a diving center first!");
-                return;
-              }
-              if (!isFishInCenter) {
-                const radius = selectedDivingCenter.radiusKm ?? 2.8;
-                alert(
-                  `This fish is not within the selected diving center's area (${radius}km radius)!`
-                );
-                return;
-              }
-              setDialogOpen(true);
-            }}
+            onClick={handleCatchClick}
             disabled={!selectedDivingCenter || !isFishInCenter}
             className="focus:bg-sonar-green/20 focus:text-sonar-green cursor-pointer text-text-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >

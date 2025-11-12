@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { Fish } from "@/types/fish";
 import { DivingCenter } from "@/types/diving-center";
-import { isFishInDivingCenter } from "@/api/fish";
+import { isFishInDivingCenter, fetchFishWithSightings } from "@/api/fish";
 import Map from "./Map";
 import FishList from "./FishList";
 import DivingCenterSelector from "./DivingCenterSelector";
@@ -24,6 +24,7 @@ export default function FishTrackerClient({
   const [selectedDivingCenter, setSelectedDivingCenter] =
     useState<DivingCenter | null>(null);
   const [selectorOpen, setSelectorOpen] = useState(false);
+  const [trackedFish, setTrackedFish] = useState<Fish | null>(null);
 
   // Filter fishes based on selected diving center
   const filteredFishes = useMemo(() => {
@@ -35,12 +36,28 @@ export default function FishTrackerClient({
     );
   }, [sortedFishes, selectedDivingCenter]);
 
+  // Handle fish tracking
+  const handleFishTrack = async (fishId: string) => {
+    try {
+      const fishWithSightings = await fetchFishWithSightings(fishId);
+      setTrackedFish(fishWithSightings);
+    } catch (error) {
+      console.error("Error fetching fish sightings:", error);
+    }
+  };
+
+  // Clear tracking when diving center changes
+  const handleDivingCenterSelect = (center: DivingCenter | null) => {
+    setSelectedDivingCenter(center);
+    setTrackedFish(null);
+  };
+
   return (
     <>
       <DivingCenterSelector
         open={selectorOpen}
         onOpenChange={setSelectorOpen}
-        onSelect={setSelectedDivingCenter}
+        onSelect={handleDivingCenterSelect}
         selectedCenter={selectedDivingCenter}
       />
       <PanelGroup
@@ -55,6 +72,7 @@ export default function FishTrackerClient({
               fishes={fishes}
               hoveredFishId={hoveredFishId}
               selectedDivingCenter={selectedDivingCenter}
+              trackedFish={trackedFish}
             />
             {/* Diving Center Selector Button */}
             <div className="absolute top-4 right-4 z-10">
@@ -99,6 +117,8 @@ export default function FishTrackerClient({
             fishes={filteredFishes}
             onFishHover={setHoveredFishId}
             selectedDivingCenter={selectedDivingCenter}
+            onFishTrack={handleFishTrack}
+            trackedFishId={trackedFish?.id || null}
           />
         </Panel>
       </PanelGroup>

@@ -8,6 +8,11 @@ export interface Fish {
     longitude: number;
     timestamp: string;
   };
+  sightings?: {
+    latitude: number;
+    longitude: number;
+    timestamp: string;
+  }[];
   dexEntry?: {
     id: string;
     cpScore: number;

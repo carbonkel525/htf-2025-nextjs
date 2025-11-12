@@ -95,6 +95,18 @@ export const fetchDivingCenters = async (): Promise<DivingCenter[]> => {
   return response.json();
 };
 
+export const fetchFishWithSightings = async (fishId: string) => {
+  const response = await fetch(buildApiUrl(`/fish/${fishId}`), {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch fish with sightings");
+  }
+
+  return response.json();
+};
+
 // Calculate distance between two points in degrees (Haversine approximation for small distances)
 export function calculateDistance(
   lat1: number,
