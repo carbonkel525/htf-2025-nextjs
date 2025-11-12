@@ -6,7 +6,7 @@
  */
 
 import { db } from "@/db";
-import { dailyChallenge, challengeProgress, fish } from "@/db/schema";
+import { dailyChallenge, challengeProgress, fish, user } from "@/db/schema";
 import { eq, and, inArray } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
@@ -342,6 +342,11 @@ export async function updateChallengeProgress(
             updatedAt: now,
           })
           .where(eq(challengeProgress.id, existingProgress.id));
+
+        // Award coins if challenge is completed
+        if (isCompleted) {
+          await awardCoinsForChallenge(userId);
+        }
       }
     } else {
       // Create new progress entry
@@ -358,7 +363,38 @@ export async function updateChallengeProgress(
         createdAt: now,
         updatedAt: now,
       });
+
+      // Award coins if challenge is completed
+      if (isCompleted) {
+        await awardCoinsForChallenge(userId);
+      }
     }
+  }
+}
+
+/**
+ * Award coins to user when they complete a challenge
+ * Awards 100 coins per challenge completion
+ */
+async function awardCoinsForChallenge(userId: string): Promise<void> {
+  const coinsToAward = 100;
+  
+  // Get current user to read current coins value
+  const [currentUser] = await db
+    .select({ coins: user.coins })
+    .from(user)
+    .where(eq(user.id, userId))
+    .limit(1);
+
+  if (currentUser) {
+    // Atomically increment user's coins
+    await db
+      .update(user)
+      .set({
+        coins: currentUser.coins + coinsToAward,
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, userId));
   }
 }
 

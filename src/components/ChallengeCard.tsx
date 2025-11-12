@@ -9,12 +9,14 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Coins } from "lucide-react";
 import { Challenge } from "@/services/challengeService";
 
 interface ChallengeCardProps {
   challenge: Challenge;
 }
+
+const COINS_REWARD = 100; // Coins awarded for completing a challenge
 
 export default function ChallengeCard({ challenge }: ChallengeCardProps) {
   const progressValue = Math.min(
@@ -45,6 +47,10 @@ export default function ChallengeCard({ challenge }: ChallengeCardProps) {
             </span>
           </div>
           <Progress value={progressValue} />
+          <div className="flex items-center gap-1 text-sm text-muted-foreground pt-1">
+            <Coins className="h-4 w-4 text-yellow-500" />
+            <span>Reward: {COINS_REWARD} coins</span>
+          </div>
         </div>
       </CardContent>
     </Card>
