@@ -6,12 +6,16 @@ interface FishListProps {
   fishes: Fish[];
   onFishHover: (fishId: string | null) => void;
   selectedDivingCenter?: DivingCenter | null;
+  onFishTrack?: (fishId: string) => void;
+  trackedFishId?: string | null;
 }
 
 export default function FishList({
   fishes,
   onFishHover,
   selectedDivingCenter,
+  onFishTrack,
+  trackedFishId,
 }: FishListProps) {
   return (
     <div className="w-full h-full bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] overflow-hidden flex flex-col">
@@ -57,6 +61,8 @@ export default function FishList({
                 fish={fish}
                 onHover={onFishHover}
                 selectedDivingCenter={selectedDivingCenter}
+                onTrack={onFishTrack}
+                isTracked={fish.id === trackedFishId}
               />
             ))}
           </div>

@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useEffect } from "react";
-import Map, { MapRef, Marker } from "react-map-gl/maplibre";
+import { useRef, useEffect, useMemo } from "react";
+import Map, { MapRef, Marker, Source, Layer } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Fish } from "@/types/fish";
 import { DivingCenter } from "@/types/diving-center";
@@ -11,6 +11,7 @@ interface MapComponentProps {
   fishes: Fish[];
   hoveredFishId: string | null;
   selectedDivingCenter?: DivingCenter | null;
+  trackedFish?: Fish | null;
 }
 
 const calculateMapCenter = (fishes: Fish[]) => {
@@ -44,11 +45,39 @@ export default function MapComponent({
   fishes,
   hoveredFishId,
   selectedDivingCenter,
+  trackedFish,
 }: MapComponentProps) {
   const mapRef = useRef<MapRef>(null);
   const { latitude, longitude } = calculateMapCenter(fishes);
 
   const isAnyHovered = hoveredFishId !== null;
+
+  // Create GeoJSON line for tracked fish swimming history
+  const trackLineGeoJSON = useMemo(() => {
+    if (!trackedFish || !trackedFish.sightings || trackedFish.sightings.length < 2) {
+      return null;
+    }
+
+    // Sort sightings by timestamp to ensure correct order
+    const sortedSightings = [...trackedFish.sightings].sort(
+      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+
+    // Create line coordinates
+    const coordinates = sortedSightings.map((sighting) => [
+      sighting.longitude,
+      sighting.latitude,
+    ]);
+
+    return {
+      type: "Feature" as const,
+      geometry: {
+        type: "LineString" as const,
+        coordinates,
+      },
+      properties: {},
+    };
+  }, [trackedFish]);
 
   // Zoom to diving center when selected
   useEffect(() => {
@@ -73,6 +102,20 @@ export default function MapComponent({
         }}
         style={{ width: "100%", height: "100%" }}
       >
+        {/* Tracked fish swimming history line */}
+        {trackLineGeoJSON && (
+          <Source id="fish-track-line" type="geojson" data={trackLineGeoJSON}>
+            <Layer
+              id="fish-track-line-layer"
+              type="line"
+              paint={{
+                "line-color": "#14ffec",
+                "line-width": 3,
+                "line-opacity": 0.8,
+              }}
+            />
+          </Source>
+        )}
         {fishes.map((fish) => (
           <FishMarker
             key={fish.id}
@@ -110,6 +153,16 @@ export default function MapComponent({
         <div className="text-text-secondary">
           Active Targets: {fishes.length}
         </div>
+        {trackedFish && (
+          <div className="text-text-secondary mt-1 pt-1 border-t border-panel-border">
+            Tracking: {trackedFish.name}
+            {trackedFish.sightings && (
+              <span className="text-sonar-green ml-1">
+                ({trackedFish.sightings.length} points)
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
