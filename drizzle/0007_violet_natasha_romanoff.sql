@@ -1,4 +1,4 @@
-CREATE TABLE `account` (
+CREATE TABLE IF NOT EXISTS `account` (
 	`id` text PRIMARY KEY NOT NULL,
 	`accountId` text NOT NULL,
 	`providerId` text NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE `account` (
 	FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE TABLE `fish` (
+CREATE TABLE IF NOT EXISTS `fish` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
 	`image` text,
@@ -27,7 +27,7 @@ CREATE TABLE `fish` (
 	`updatedAt` integer NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE `fishDex` (
+CREATE TABLE IF NOT EXISTS `fishDex` (
 	`id` text PRIMARY KEY NOT NULL,
 	`userId` text NOT NULL,
 	`fishId` text NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE `fishDex` (
 	FOREIGN KEY (`fishId`) REFERENCES `fish`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE TABLE `friends` (
+CREATE TABLE IF NOT EXISTS `friends` (
 	`id` text PRIMARY KEY NOT NULL,
 	`userId` text NOT NULL,
 	`friendId` text NOT NULL,
@@ -49,8 +49,8 @@ CREATE TABLE `friends` (
 	FOREIGN KEY (`friendId`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `friends_userId_friendId_unique` ON `friends` (`userId`,`friendId`);--> statement-breakpoint
-CREATE TABLE `session` (
+CREATE UNIQUE INDEX IF NOT EXISTS `friends_userId_friendId_unique` ON `friends` (`userId`,`friendId`);--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `session` (
 	`id` text PRIMARY KEY NOT NULL,
 	`expiresAt` integer NOT NULL,
 	`token` text NOT NULL,
@@ -62,8 +62,8 @@ CREATE TABLE `session` (
 	FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `session_token_unique` ON `session` (`token`);--> statement-breakpoint
-CREATE TABLE `user` (
+CREATE UNIQUE INDEX IF NOT EXISTS `session_token_unique` ON `session` (`token`);--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `user` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
 	`email` text NOT NULL,
@@ -73,8 +73,8 @@ CREATE TABLE `user` (
 	`updatedAt` integer NOT NULL
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `user_email_unique` ON `user` (`email`);--> statement-breakpoint
-CREATE TABLE `verification` (
+CREATE UNIQUE INDEX IF NOT EXISTS `user_email_unique` ON `user` (`email`);--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `verification` (
 	`id` text PRIMARY KEY NOT NULL,
 	`identifier` text NOT NULL,
 	`value` text NOT NULL,
