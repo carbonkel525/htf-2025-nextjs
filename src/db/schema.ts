@@ -62,6 +62,20 @@ export const verification = sqliteTable("verification", {
   updatedAt: integer("updatedAt", { mode: "timestamp" }),
 });
 
+// Fish table - stores all tracked fishes from external API
+export const fish = sqliteTable("fish", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  image: text("image"),
+  rarity: text("rarity").notNull(),
+  latestSightingLatitude: real("latestSightingLatitude").notNull(),
+  latestSightingLongitude: real("latestSightingLongitude").notNull(),
+  latestSightingTimestamp: text("latestSightingTimestamp").notNull(),
+  createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
+});
+
+// Fish Dex table - user's collected fish references
 export const fishDex = sqliteTable(
   "fishDex",
   {
@@ -69,15 +83,9 @@ export const fishDex = sqliteTable(
     userId: text("userId")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    fishId: text("fishId").notNull(),
-    // Store full fish data
-    name: text("name").notNull(),
-    image: text("image"),
-    rarity: text("rarity").notNull(),
-    // Store latestSighting data
-    latestSightingLatitude: real("latestSightingLatitude").notNull(),
-    latestSightingLongitude: real("latestSightingLongitude").notNull(),
-    latestSightingTimestamp: text("latestSightingTimestamp").notNull(),
+    fishId: text("fishId")
+      .notNull()
+      .references(() => fish.id, { onDelete: "cascade" }),
     createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
     updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
   },

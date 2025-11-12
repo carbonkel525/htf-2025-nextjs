@@ -4,7 +4,7 @@ import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { db } from "@/db";
-import { fishDex } from "@/db/schema";
+import { fishDex, fish } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import FishDetailClient from "@/components/FishDetailClient";
 import { Fish } from "@/types/fish";
@@ -24,20 +24,24 @@ export default async function FishDetailPage({ params }: FishDetailPageProps) {
     redirect("/login");
   }
 
-  // Fetch fish from database
+  // Fetch fish from database (join with fish table)
   const dexEntry = await db
     .select({
       id: fishDex.id,
       fishId: fishDex.fishId,
-      name: fishDex.name,
-      image: fishDex.image,
-      rarity: fishDex.rarity,
-      latestSightingLatitude: fishDex.latestSightingLatitude,
-      latestSightingLongitude: fishDex.latestSightingLongitude,
-      latestSightingTimestamp: fishDex.latestSightingTimestamp,
       createdAt: fishDex.createdAt,
+      fish: {
+        id: fish.id,
+        name: fish.name,
+        image: fish.image,
+        rarity: fish.rarity,
+        latestSightingLatitude: fish.latestSightingLatitude,
+        latestSightingLongitude: fish.latestSightingLongitude,
+        latestSightingTimestamp: fish.latestSightingTimestamp,
+      },
     })
     .from(fishDex)
+    .innerJoin(fish, eq(fishDex.fishId, fish.id))
     .where(and(eq(fishDex.userId, session.user.id), eq(fishDex.fishId, fishId)))
     .limit(1);
 
@@ -48,15 +52,15 @@ export default async function FishDetailPage({ params }: FishDetailPageProps) {
   const entry = dexEntry[0];
 
   // Transform to Fish type format
-  const fish: Fish = {
-    id: entry.fishId,
-    name: entry.name,
-    image: entry.image || "",
-    rarity: entry.rarity,
+  const fishData: Fish = {
+    id: entry.fish.id,
+    name: entry.fish.name,
+    image: entry.fish.image || "",
+    rarity: entry.fish.rarity,
     latestSighting: {
-      latitude: entry.latestSightingLatitude,
-      longitude: entry.latestSightingLongitude,
-      timestamp: entry.latestSightingTimestamp,
+      latitude: entry.fish.latestSightingLatitude,
+      longitude: entry.fish.latestSightingLongitude,
+      timestamp: entry.fish.latestSightingTimestamp,
     },
   };
 
@@ -97,7 +101,7 @@ export default async function FishDetailPage({ params }: FishDetailPageProps) {
       </div>
 
       <FishDetailClient
-        fish={fish}
+        fish={fishData}
         isCollected={isCollected}
         collectedAt={collectedAt}
       />

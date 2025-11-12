@@ -52,10 +52,6 @@ export const addFishToDex = async (fish: Fish) => {
     },
     body: JSON.stringify({
       fishId: fish.id,
-      name: fish.name,
-      image: fish.image,
-      rarity: fish.rarity,
-      latestSighting: fish.latestSighting,
     }),
   });
 

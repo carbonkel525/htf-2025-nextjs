@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { fishDex } from "@/db/schema";
+import { fishDex, fish } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { fetchFishes } from "@/api/fish"; // Only used for total count
 import { getRarityOrder } from "@/utils/rarity";
@@ -20,32 +20,36 @@ export default async function FishDex() {
     redirect("/login");
   }
 
-  // Get user's fish dex with full fish data from database
+  // Get user's fish dex with full fish data from database (join with fish table)
   const userFishDex = await db
     .select({
       id: fishDex.id,
       fishId: fishDex.fishId,
-      name: fishDex.name,
-      image: fishDex.image,
-      rarity: fishDex.rarity,
-      latestSightingLatitude: fishDex.latestSightingLatitude,
-      latestSightingLongitude: fishDex.latestSightingLongitude,
-      latestSightingTimestamp: fishDex.latestSightingTimestamp,
       createdAt: fishDex.createdAt,
+      fish: {
+        id: fish.id,
+        name: fish.name,
+        image: fish.image,
+        rarity: fish.rarity,
+        latestSightingLatitude: fish.latestSightingLatitude,
+        latestSightingLongitude: fish.latestSightingLongitude,
+        latestSightingTimestamp: fish.latestSightingTimestamp,
+      },
     })
     .from(fishDex)
+    .innerJoin(fish, eq(fishDex.fishId, fish.id))
     .where(eq(fishDex.userId, session.user.id));
 
   // Transform to Fish type format
   const collectedFishes: Fish[] = userFishDex.map((entry) => ({
-    id: entry.fishId,
-    name: entry.name,
-    image: entry.image || "",
-    rarity: entry.rarity,
+    id: entry.fish.id,
+    name: entry.fish.name,
+    image: entry.fish.image || "",
+    rarity: entry.fish.rarity,
     latestSighting: {
-      latitude: entry.latestSightingLatitude,
-      longitude: entry.latestSightingLongitude,
-      timestamp: entry.latestSightingTimestamp,
+      latitude: entry.fish.latestSightingLatitude,
+      longitude: entry.fish.latestSightingLongitude,
+      timestamp: entry.fish.latestSightingTimestamp,
     },
   }));
 
