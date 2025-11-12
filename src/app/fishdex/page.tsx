@@ -125,6 +125,13 @@ export default async function FishDex() {
             </Link>
           </div>
           <div className="border border-panel-border shadow-[--shadow-cockpit-border] px-3 py-1 rounded">
+            <Link href="/challenges">
+              <span className="text-text-secondary hover:text-sonar-green transition-colors">
+                CHALLENGES
+              </span>
+            </Link>
+          </div>
+          <div className="border border-panel-border shadow-[--shadow-cockpit-border] px-3 py-1 rounded">
             <UserInfo />
           </div>
         </div>

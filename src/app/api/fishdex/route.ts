@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { fishDex, fish } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { nanoid } from "nanoid";
+import { updateChallengeProgress } from "@/services/challengeService";
 
 export async function POST(request: NextRequest) {
   try {
@@ -77,6 +78,14 @@ export async function POST(request: NextRequest) {
       createdAt: now,
       updatedAt: now,
     });
+
+    // Update challenge progress for the caught fish
+    try {
+      await updateChallengeProgress(session.user.id, fishId);
+    } catch (error) {
+      // Log error but don't fail the request if challenge update fails
+      console.error("Error updating challenge progress:", error);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

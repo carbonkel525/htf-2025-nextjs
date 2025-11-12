@@ -13,6 +13,7 @@ export const user = sqliteTable("user", {
   email: text("email").notNull().unique(),
   emailVerified: integer("emailVerified", { mode: "boolean" }).notNull(),
   image: text("image"),
+  coins: integer("coins").notNull().default(0),
   createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
 });
@@ -105,4 +106,37 @@ export const friends = sqliteTable("friends", {
 }, (table) => ({
   // Ensure unique friendship pairs
   uniqueFriendship: unique().on(table.userId, table.friendId),
+}));
+
+// Daily Challenge table - stores daily challenges
+export const dailyChallenge = sqliteTable("dailyChallenge", {
+  id: text("id").primaryKey(),
+  challengeType: text("challengeType").notNull(), // e.g., "CATCH_COMMON_FISH", "CATCH_RARE_FISH", "CATCH_ANY_FISH"
+  target: integer("target").notNull(), // Target count (e.g., 2, 5, 10)
+  description: text("description").notNull(), // Human-readable description
+  date: text("date").notNull(), // Date in YYYY-MM-DD format
+  createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
+}, (table) => ({
+  // Ensure one challenge per type per date
+  uniqueChallengeDate: unique().on(table.challengeType, table.date),
+}));
+
+// Challenge Progress table - tracks user progress on challenges
+export const challengeProgress = sqliteTable("challengeProgress", {
+  id: text("id").primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  challengeId: text("challengeId")
+    .notNull()
+    .references(() => dailyChallenge.id, { onDelete: "cascade" }),
+  currentProgress: integer("currentProgress").notNull().default(0),
+  completedAt: integer("completedAt", { mode: "timestamp" }),
+  date: text("date").notNull(), // Date in YYYY-MM-DD format (matches challenge date)
+  createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
+}, (table) => ({
+  // Ensure one progress entry per user per challenge
+  uniqueUserChallenge: unique().on(table.userId, table.challengeId),
 }));
