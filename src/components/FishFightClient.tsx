@@ -21,9 +21,17 @@ interface BattleLog {
 
 interface FishFightClientProps {
   fishes: Fish[];
+  opponentFishes?: Fish[];
+  opponentName?: string;
 }
 
-export default function FishFightClient({ fishes }: FishFightClientProps) {
+export default function FishFightClient({
+  fishes,
+  opponentFishes,
+  opponentName,
+}: FishFightClientProps) {
+  // Use opponentFishes for Fighter 2 if provided, otherwise use user's fishes
+  const fighter2Fishes = opponentFishes || fishes;
   const [selectedFish1, setSelectedFish1] = useState<Fish | null>(null);
   const [selectedFish2, setSelectedFish2] = useState<Fish | null>(null);
   const [battleFish1, setBattleFish1] = useState<BattleFish | null>(null);
@@ -202,34 +210,63 @@ export default function FishFightClient({ fishes }: FishFightClientProps) {
     nextTurn,
   ]);
 
-  if (fishes.length < 2) {
-    return (
-      <div className="flex-1 flex items-center justify-center bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] m-6 rounded-lg">
-        <div className="text-center">
-          <div className="text-4xl mb-4">⚔️</div>
-          <div className="text-xl font-bold text-text-primary mb-2 font-mono">
-            NOT ENOUGH FISH
-          </div>
-          <div className="text-sm text-text-secondary font-mono">
-            You need at least 2 fish in your dex to battle
+  // Check if we have enough fish for battle
+  if (opponentFishes) {
+    // When battling a friend, we need at least 1 of our fish and 1 of their fish
+    if (fishes.length < 1 || opponentFishes.length < 1) {
+      return (
+        <div className="flex items-center justify-center bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] m-6 rounded-lg">
+          <div className="text-center">
+            <div className="text-4xl mb-4">⚔️</div>
+            <div className="text-xl font-bold text-text-primary mb-2 font-mono">
+              NOT ENOUGH FISH
+            </div>
+            <div className="text-sm text-text-secondary font-mono">
+              {fishes.length < 1
+                ? "You need at least 1 fish to battle"
+                : `${
+                    opponentName || "Your opponent"
+                  } needs at least 1 fish to battle`}
+            </div>
           </div>
         </div>
-      </div>
-    );
+      );
+    }
+  } else {
+    // When battling your own fish, need at least 2
+    if (fishes.length < 2) {
+      return (
+        <div className="flex items-center justify-center bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] m-6 rounded-lg">
+          <div className="text-center">
+            <div className="text-4xl mb-4">⚔️</div>
+            <div className="text-xl font-bold text-text-primary mb-2 font-mono">
+              NOT ENOUGH FISH
+            </div>
+            <div className="text-sm text-text-secondary font-mono">
+              You need at least 2 fish in your dex to battle
+            </div>
+          </div>
+        </div>
+      );
+    }
   }
 
   return (
-    <div className="flex-1 overflow-y-auto flex flex-col">
+    <div className="flex flex-col">
       {!isFighting ? (
         // Selection Phase
-        <div className="flex-1 overflow-y-auto bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] p-6">
+        <div className="bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] p-6">
           <div className="max-w-6xl mx-auto space-y-6">
             <div className="bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] px-6 py-4 rounded-lg">
               <h2 className="text-xl font-bold text-sonar-green font-mono mb-2">
                 SELECT YOUR FIGHTERS
               </h2>
               <p className="text-xs text-text-secondary font-mono">
-                Choose 2 fish from your collection to battle
+                {opponentFishes
+                  ? `Choose your fish to battle against ${
+                      opponentName || "your opponent"
+                    }`
+                  : "Choose 2 fish from your collection to battle"}
               </p>
             </div>
 
@@ -290,10 +327,12 @@ export default function FishFightClient({ fishes }: FishFightClientProps) {
               {/* Fish 2 Selection */}
               <div className="bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit-border] backdrop-blur-[10px] rounded-lg p-6">
                 <h3 className="text-lg font-bold text-sonar-green font-mono mb-4">
-                  FIGHTER 2
+                  {opponentFishes
+                    ? `OPPONENT${opponentName ? ` (${opponentName})` : ""}`
+                    : "FIGHTER 2"}
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto">
-                  {fishes.map((fish) => (
+                  {fighter2Fishes.map((fish) => (
                     <button
                       key={fish.id}
                       onClick={() => setSelectedFish2(fish)}
