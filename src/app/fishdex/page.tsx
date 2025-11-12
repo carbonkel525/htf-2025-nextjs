@@ -14,7 +14,7 @@ export default async function FishDex() {
   }
 
   return (
-    <div className="w-full h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
+    <div className="w-full h-screen flex flex-col relative overflow-hidden">
       {/* Header */}
       <div className="bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] px-6 py-3 border-b-2 border-panel-border flex items-center justify-between z-10">
         <div className="flex items-center gap-4">
@@ -26,16 +26,6 @@ export default async function FishDex() {
           </div>
         </div>
         <div className="flex items-center gap-4 text-xs font-mono">
-          <div className="border border-panel-border shadow-[--shadow-cockpit-border] px-3 py-1 rounded">
-            <span className="text-sonar-green">STATUS:</span>
-            <span className="text-sonar-green ml-2 font-bold">OPERATIONAL</span>
-          </div>
-          <div className="border border-panel-border shadow-[--shadow-cockpit-border] px-3 py-1 rounded">
-            <span className="text-text-secondary">TARGETS:</span>
-            <span className="text-sonar-green ml-2 font-bold">
-              {fishes.length}
-            </span>
-          </div>
           <div className="border border-panel-border shadow-[--shadow-cockpit-border] px-3 py-1 rounded">
             <Link href="/fishdex">
               <span className="text-text-secondary">MY FISH DEX</span>
