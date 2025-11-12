@@ -16,15 +16,11 @@ import { addFishToDex, removeFishFromDex } from "@/api/fish";
 interface FishCardProps {
   fish: Fish;
   onHover?: (fishId: string | null) => void;
-  onAddToDex?: (fishId: string) => void;
-  onDelete?: (fishId: string) => void;
 }
 
 export default function FishCard({
   fish,
   onHover,
-  onAddToDex,
-  onDelete,
 }: FishCardProps) {
   const handleAddToDex = async (fishId: string) => {
     try {

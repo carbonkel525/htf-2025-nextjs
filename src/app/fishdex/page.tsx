@@ -6,6 +6,10 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { fishDex } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { fetchFishes } from "@/api/fish";
+import { getRarityOrder } from "@/utils/rarity";
+import FishDexClient from "@/components/FishDexClient";
+import { Fish } from "@/types/fish";
 
 export default async function FishDex() {
   const session = await auth.api.getSession({
@@ -16,7 +20,7 @@ export default async function FishDex() {
     redirect("/login");
   }
 
-  // Query database directly instead of using fetch
+  // Get user's fish dex
   const userFishDex = await db
     .select({
       id: fishDex.id,
@@ -26,23 +30,63 @@ export default async function FishDex() {
     .from(fishDex)
     .where(eq(fishDex.userId, session.user.id));
 
+  // Fetch all fishes from external API
+  const allFishes = await fetchFishes();
+
+  // Filter to only show fishes in user's dex
+  const dexFishIds = new Set(userFishDex.map((entry) => entry.fishId));
+  const collectedFishes: Fish[] = allFishes.filter((fish: Fish) =>
+    dexFishIds.has(fish.id)
+  );
+
+  // Sort by rarity (rarest first)
+  const sortedFishes = [...collectedFishes].sort(
+    (a, b) => getRarityOrder(a.rarity) - getRarityOrder(b.rarity)
+  );
+
+  // Calculate stats
+  const totalFishes = allFishes.length;
+  const collectedCount = collectedFishes.length;
+  const completionPercentage =
+    totalFishes > 0 ? Math.round((collectedCount / totalFishes) * 100) : 0;
+
+  // Count by rarity
+  const commonCount = collectedFishes.filter(
+    (f) => f.rarity.toUpperCase() === "COMMON"
+  ).length;
+  const rareCount = collectedFishes.filter(
+    (f) => f.rarity.toUpperCase() === "RARE"
+  ).length;
+  const epicCount = collectedFishes.filter(
+    (f) => f.rarity.toUpperCase() === "EPIC"
+  ).length;
 
   return (
     <div className="w-full h-screen flex flex-col relative overflow-hidden">
+      {/* Scanline effect */}
+      <div className="fixed top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[color-mix(in_srgb,var(--color-sonar-green)_10%,transparent)] to-transparent animate-scanline pointer-events-none z-[9999]"></div>
+
       {/* Header */}
       <div className="bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] px-6 py-3 border-b-2 border-panel-border flex items-center justify-between z-10">
         <div className="flex items-center gap-4">
           <div className="text-2xl font-bold [text-shadow:--shadow-glow-text] text-sonar-green">
-            FISH TRACKER
+            FISH DEX
           </div>
           <div className="text-xs text-text-secondary font-mono">
-            GLOBAL MARINE MONITORING SYSTEM
+            PERSONAL COLLECTION ARCHIVE
           </div>
         </div>
         <div className="flex items-center gap-4 text-xs font-mono">
           <div className="border border-panel-border shadow-[--shadow-cockpit-border] px-3 py-1 rounded">
+            <Link href="/">
+              <span className="text-text-secondary hover:text-sonar-green transition-colors">
+                TRACKER
+              </span>
+            </Link>
+          </div>
+          <div className="border border-panel-border shadow-[--shadow-cockpit-border] px-3 py-1 rounded">
             <Link href="/fishdex">
-              <span className="text-text-secondary">MY FISH DEX</span>
+              <span className="text-sonar-green font-bold">MY FISH DEX</span>
             </Link>
           </div>
           <div className="border border-panel-border shadow-[--shadow-cockpit-border] px-3 py-1 rounded">
@@ -50,6 +94,64 @@ export default async function FishDex() {
           </div>
         </div>
       </div>
+
+      {/* Stats Panel */}
+      <div className="bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] px-6 py-4 border-b-2 border-panel-border">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="border border-panel-border shadow-[--shadow-cockpit-border] px-4 py-3 rounded">
+            <div className="text-xs font-mono text-text-secondary mb-1">
+              COLLECTED
+            </div>
+            <div className="text-2xl font-bold text-sonar-green [text-shadow:--shadow-glow-text]">
+              {collectedCount}
+            </div>
+            <div className="text-xs font-mono text-text-secondary mt-1">
+              / {totalFishes}
+            </div>
+          </div>
+          <div className="border border-panel-border shadow-[--shadow-cockpit-border] px-4 py-3 rounded">
+            <div className="text-xs font-mono text-text-secondary mb-1">
+              COMPLETION
+            </div>
+            <div className="text-2xl font-bold text-sonar-green [text-shadow:--shadow-glow-text]">
+              {completionPercentage}%
+            </div>
+            <div className="w-full bg-deep-ocean h-1.5 mt-2 rounded overflow-hidden">
+              <div
+                className="h-full bg-sonar-green transition-all duration-500"
+                style={{ width: `${completionPercentage}%` }}
+              ></div>
+            </div>
+          </div>
+          <div className="border border-panel-border shadow-[--shadow-cockpit-border] px-4 py-3 rounded">
+            <div className="text-xs font-mono text-text-secondary mb-1">
+              COMMON
+            </div>
+            <div className="text-2xl font-bold text-sonar-green [text-shadow:--shadow-glow-text]">
+              {commonCount}
+            </div>
+          </div>
+          <div className="border border-panel-border shadow-[--shadow-cockpit-border] px-4 py-3 rounded">
+            <div className="text-xs font-mono text-text-secondary mb-1">
+              RARE
+            </div>
+            <div className="text-2xl font-bold text-warning-amber [text-shadow:--shadow-glow-text]">
+              {rareCount}
+            </div>
+          </div>
+          <div className="border border-panel-border shadow-[--shadow-cockpit-border] px-4 py-3 rounded">
+            <div className="text-xs font-mono text-text-secondary mb-1">
+              EPIC
+            </div>
+            <div className="text-2xl font-bold text-danger-red [text-shadow:--shadow-glow-text]">
+              {epicCount}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Fish Grid */}
+      <FishDexClient fishes={sortedFishes} />
     </div>
   );
 }
