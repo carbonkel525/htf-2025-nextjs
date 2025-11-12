@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "e457a011-b826-4c3e-8cc6-8f9d4b5ac99b",
+  "id": "a4accd39-8e2b-499f-a60a-db377b54d954",
   "prevId": "ebf40668-8538-456d-a61e-1f5700aa15c9",
   "tables": {
     "account": {
@@ -154,21 +154,21 @@
           "name": "latestSightingLatitude",
           "type": "real",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "latestSightingLongitude": {
           "name": "latestSightingLongitude",
           "type": "real",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "latestSightingTimestamp": {
           "name": "latestSightingTimestamp",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "createdAt": {
@@ -245,7 +245,16 @@
           "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "fishDex_userId_fishId_unique": {
+          "name": "fishDex_userId_fishId_unique",
+          "columns": [
+            "userId",
+            "fishId"
+          ],
+          "isUnique": true
+        }
+      },
       "foreignKeys": {
         "fishDex_userId_user_id_fk": {
           "name": "fishDex_userId_user_id_fk",

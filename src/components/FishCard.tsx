@@ -117,32 +117,45 @@ export default function FishCard({
                   )}
                 </div>
               </div>
+              <div
+                className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${getRarityBadgeClass(
+                  fish.rarity
+                )}`}
+              >
+                {fish.rarity}
+              </div>
             </div>
-            <div className="text-xs font-mono space-y-1">
-              <div className="flex justify-between text-text-secondary">
-                <span>LAT:</span>
-                <span className="text-sonar-green">
-                  {fish.latestSighting.latitude.toFixed(6)}
-                </span>
-              </div>
-              <div className="flex justify-between text-text-secondary">
-                <span>LON:</span>
-                <span className="text-sonar-green">
-                  {fish.latestSighting.longitude.toFixed(6)}
-                </span>
-              </div>
-              <div className="flex justify-between text-text-secondary pt-1 border-t border-panel-border">
-                <span>LAST SEEN:</span>
-                <span className="text-warning-amber">
-                  {formatDistanceToNow(
-                    new Date(fish.latestSighting.timestamp),
-                    {
+          </div>
+          <div className="text-xs font-mono space-y-1">
+            {fish.latestSighting ? (
+              <>
+                <div className="flex justify-between text-text-secondary">
+                  <span>LAT:</span>
+                  <span className="text-sonar-green">
+                    {fish.latestSighting.latitude.toFixed(6)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-text-secondary">
+                  <span>LON:</span>
+                  <span className="text-sonar-green">
+                    {fish.latestSighting.longitude.toFixed(6)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-text-secondary pt-1 border-t border-panel-border">
+                  <span>LAST SEEN:</span>
+                  <span className="text-warning-amber">
+                    {formatDistanceToNow(new Date(fish.latestSighting.timestamp), {
                       addSuffix: true,
-                    }
-                  )}
-                </span>
+                    })}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="flex justify-between text-text-secondary pt-1">
+                <span>STATUS:</span>
+                <span className="text-text-secondary">No sightings yet</span>
               </div>
-            </div>
+            )}
           </div>
         </ContextMenuTrigger>
         <ContextMenuContent className="bg-dark-navy border-panel-border">

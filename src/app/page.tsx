@@ -32,6 +32,28 @@ export default async function Home() {
       .limit(1);
 
     if (existing.length > 0) {
+      const existingFish = existing[0];
+      // Determine which latestSighting to use - prefer the newer one
+      const externalSighting = fishData.latestSighting;
+      const localSighting = existingFish.latestSightingTimestamp
+        ? {
+            latitude: existingFish.latestSightingLatitude!,
+            longitude: existingFish.latestSightingLongitude!,
+            timestamp: existingFish.latestSightingTimestamp,
+          }
+        : null;
+
+      let finalSighting = externalSighting;
+      if (localSighting && externalSighting) {
+        // Use the one with the newer timestamp
+        const localTime = new Date(localSighting.timestamp).getTime();
+        const externalTime = new Date(externalSighting.timestamp).getTime();
+        finalSighting = localTime > externalTime ? localSighting : externalSighting;
+      } else if (localSighting && !externalSighting) {
+        // Keep local if external doesn't have one
+        finalSighting = localSighting;
+      }
+
       // Update existing fish
       await db
         .update(fish)
@@ -39,12 +61,17 @@ export default async function Home() {
           name: fishData.name,
           image: fishData.image || null,
           rarity: fishData.rarity,
-          latestSightingLatitude: fishData.latestSighting.latitude,
-          latestSightingLongitude: fishData.latestSighting.longitude,
-          latestSightingTimestamp: fishData.latestSighting.timestamp,
+          latestSightingLatitude: finalSighting?.latitude ?? null,
+          latestSightingLongitude: finalSighting?.longitude ?? null,
+          latestSightingTimestamp: finalSighting?.timestamp ?? null,
           updatedAt: now,
         })
         .where(eq(fish.id, fishData.id));
+
+      // Update the fishData object with the final sighting for display
+      if (finalSighting) {
+        fishData.latestSighting = finalSighting;
+      }
     } else {
       // Insert new fish
       await db.insert(fish).values({
@@ -52,9 +79,9 @@ export default async function Home() {
         name: fishData.name,
         image: fishData.image || null,
         rarity: fishData.rarity,
-        latestSightingLatitude: fishData.latestSighting.latitude,
-        latestSightingLongitude: fishData.latestSighting.longitude,
-        latestSightingTimestamp: fishData.latestSighting.timestamp,
+        latestSightingLatitude: fishData.latestSighting?.latitude ?? null,
+        latestSightingLongitude: fishData.latestSighting?.longitude ?? null,
+        latestSightingTimestamp: fishData.latestSighting?.timestamp ?? null,
         createdAt: now,
         updatedAt: now,
       });

@@ -68,9 +68,9 @@ export const fish = sqliteTable("fish", {
   name: text("name").notNull(),
   image: text("image"),
   rarity: text("rarity").notNull(),
-  latestSightingLatitude: real("latestSightingLatitude").notNull(),
-  latestSightingLongitude: real("latestSightingLongitude").notNull(),
-  latestSightingTimestamp: text("latestSightingTimestamp").notNull(),
+  latestSightingLatitude: real("latestSightingLatitude"),
+  latestSightingLongitude: real("latestSightingLongitude"),
+  latestSightingTimestamp: text("latestSightingTimestamp"),
   createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
 });

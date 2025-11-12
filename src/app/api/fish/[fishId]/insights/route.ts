@@ -144,12 +144,16 @@ export async function GET(
 
     const fishRecord = fishData[0];
 
+    // Use default coordinates if latestSighting is null
+    const latitude = fishRecord.latestSightingLatitude ?? 10.095;
+    const longitude = fishRecord.latestSightingLongitude ?? 99.805;
+
     // Generate insights
     const insights = generateFishInsights(
       fishRecord.name,
       fishRecord.rarity,
-      fishRecord.latestSightingLatitude,
-      fishRecord.latestSightingLongitude
+      latitude,
+      longitude
     );
 
     // Simulate AI processing delay

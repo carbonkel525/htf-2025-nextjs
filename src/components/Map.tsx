@@ -18,18 +18,25 @@ const calculateMapCenter = (fishes: Fish[]) => {
     return { latitude: 10.095, longitude: 99.805 };
   }
 
-  const totalLat = fishes.reduce(
-    (sum, fish) => sum + fish.latestSighting.latitude,
+  // Filter out fish without latestSighting
+  const fishesWithSighting = fishes.filter(f => f.latestSighting);
+  
+  if (fishesWithSighting.length === 0) {
+    return { latitude: 10.095, longitude: 99.805 };
+  }
+
+  const totalLat = fishesWithSighting.reduce(
+    (sum, fish) => sum + (fish.latestSighting?.latitude ?? 0),
     0
   );
-  const totalLon = fishes.reduce(
-    (sum, fish) => sum + fish.latestSighting.longitude,
+  const totalLon = fishesWithSighting.reduce(
+    (sum, fish) => sum + (fish.latestSighting?.longitude ?? 0),
     0
   );
 
   return {
-    latitude: totalLat / fishes.length,
-    longitude: totalLon / fishes.length,
+    latitude: totalLat / fishesWithSighting.length,
+    longitude: totalLon / fishesWithSighting.length,
   };
 };
 

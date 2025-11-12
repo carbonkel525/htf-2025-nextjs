@@ -126,11 +126,16 @@ export async function GET(request: NextRequest) {
       name: entry.fish.name,
       image: entry.fish.image || "",
       rarity: entry.fish.rarity,
-      latestSighting: {
-        latitude: entry.fish.latestSightingLatitude,
-        longitude: entry.fish.latestSightingLongitude,
-        timestamp: entry.fish.latestSightingTimestamp,
-      },
+      latestSighting:
+        entry.fish.latestSightingLatitude !== null &&
+        entry.fish.latestSightingLongitude !== null &&
+        entry.fish.latestSightingTimestamp !== null
+          ? {
+              latitude: entry.fish.latestSightingLatitude,
+              longitude: entry.fish.latestSightingLongitude,
+              timestamp: entry.fish.latestSightingTimestamp,
+            }
+          : null,
       dexEntry: {
         id: entry.id,
         cpScore: entry.cpScore,
