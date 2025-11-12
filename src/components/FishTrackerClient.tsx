@@ -75,7 +75,8 @@ export default function FishTrackerClient({
                 </div>
                 <div className="text-text-primary">{selectedDivingCenter.name}</div>
                 <div className="text-text-secondary text-[10px] mt-1">
-                  {filteredFishes.length} fish available
+                  {filteredFishes.length} fish available •{" "}
+                  {selectedDivingCenter.radiusKm ?? 2.8}km radius
                 </div>
               </div>
             )}

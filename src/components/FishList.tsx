@@ -45,7 +45,8 @@ export default function FishList({
         )}
         {selectedDivingCenter && fishes.length === 0 && (
           <div className="text-center py-8 text-text-secondary font-mono text-sm">
-            No fish found within 2km of {selectedDivingCenter.name}
+            No fish found within {selectedDivingCenter.radiusKm ?? 2.8}km of{" "}
+            {selectedDivingCenter.name}
           </div>
         )}
         {selectedDivingCenter && fishes.length > 0 && (

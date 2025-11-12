@@ -56,8 +56,9 @@ export default function FishCard({
         return;
       }
       if (!isFishInCenter) {
+        const radius = selectedDivingCenter.radiusKm ?? 2.8;
         alert(
-          "This fish is not within the selected diving center's area (2km radius)!"
+          `This fish is not within the selected diving center's area (${radius}km radius)!`
         );
         return;
       }
@@ -148,8 +149,9 @@ export default function FishCard({
                 return;
               }
               if (!isFishInCenter) {
+                const radius = selectedDivingCenter.radiusKm ?? 2.8;
                 alert(
-                  "This fish is not within the selected diving center's area!"
+                  `This fish is not within the selected diving center's area (${radius}km radius)!`
                 );
                 return;
               }

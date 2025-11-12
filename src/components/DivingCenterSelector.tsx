@@ -64,8 +64,8 @@ export default function DivingCenterSelector({
             Select Diving Center
           </DialogTitle>
           <DialogDescription className="text-text-secondary font-mono text-xs">
-            Choose a diving center to start fishing. Only fish within 2km of the
-            center can be caught.
+            Choose a diving center to start fishing. Each center has its own
+            fishing radius.
           </DialogDescription>
         </DialogHeader>
 
@@ -129,6 +129,12 @@ export default function DivingCenterSelector({
                         LON:{" "}
                         <span className="text-sonar-green">
                           {center.longitude.toFixed(6)}
+                        </span>
+                      </div>
+                      <div>
+                        RADIUS:{" "}
+                        <span className="text-sonar-green">
+                          {center.radiusKm ?? 2.8}km
                         </span>
                       </div>
                     </div>

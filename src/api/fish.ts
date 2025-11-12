@@ -109,12 +109,13 @@ export function calculateDistance(
   return R * c; // Distance in km
 }
 
-// Check if a fish is within a diving center's area (default radius: 2km)
+// Check if a fish is within a diving center's area
+// Uses the center's radiusKm if provided, otherwise defaults to 2.8km
 export function isFishInDivingCenter(
   fish: Fish,
-  center: DivingCenter,
-  radiusKm: number = 2
+  center: DivingCenter
 ): boolean {
+  const radiusKm = center.radiusKm ?? 2.8; // Default to 2.8km if not specified
   const distance = calculateDistance(
     fish.latestSighting.latitude,
     fish.latestSighting.longitude,
