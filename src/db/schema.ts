@@ -90,3 +90,19 @@ export const fishDex = sqliteTable("fishDex", {
   createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
 });
+
+// Friends table - bidirectional friendship relationships
+export const friends = sqliteTable("friends", {
+  id: text("id").primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  friendId: text("friendId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
+}, (table) => ({
+  // Ensure unique friendship pairs
+  uniqueFriendship: unique().on(table.userId, table.friendId),
+}));
