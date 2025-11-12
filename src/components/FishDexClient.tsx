@@ -33,8 +33,14 @@ export default function FishDexClient({ fishes }: FishDexClientProps) {
   const handleDelete = async (fishId: string) => {
     if (confirm(`Are you sure you want to remove this fish from your dex?`)) {
       try {
-        await removeFishFromDex(fishId);
+        const result = await removeFishFromDex(fishId);
+        console.log("Delete result:", result);
+        // Force a refresh to update the UI
         router.refresh();
+        // Also try navigating to ensure the page updates
+        setTimeout(() => {
+          router.refresh();
+        }, 100);
       } catch (error) {
         console.error("Error deleting fish:", error);
         alert("Failed to remove fish from dex");

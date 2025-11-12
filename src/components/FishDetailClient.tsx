@@ -45,19 +45,23 @@ export default function FishDetailClient({
       setIsProcessing(true);
 
       if (isCollected) {
-        await removeFishFromDex(fish.id);
+        const result = await removeFishFromDex(fish.id);
+        console.log("Delete result:", result);
         setIsCollected(false);
+        // Navigate back to fishdex page after deletion
+        router.push("/fishdex");
       } else {
         await addFishToDex(fish);
         setIsCollected(true);
+        router.refresh();
       }
-
-      router.refresh();
     } catch (error) {
       console.error("Failed to update fish dex entry", error);
       alert(
         "Something went wrong while updating your fish dex. Please try again."
       );
+      // Revert state on error
+      setIsCollected(initialIsCollected);
     } finally {
       setIsProcessing(false);
     }
@@ -188,7 +192,7 @@ export default function FishDetailClient({
           </div>
 
           <div className="bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] rounded-lg p-6">
-            <div className="text-sm font-bold text-sonar-green font-mono">
+            {/* <div className="text-sm font-bold text-sonar-green font-mono">
               Observation Notes
             </div>
             <div className="text-xs text-text-secondary font-mono mt-3 leading-relaxed">
@@ -197,7 +201,7 @@ export default function FishDetailClient({
               fetched from the external marine knowledge base. Maintain visual
               confirmation and update your Fish Dex with photographic evidence
               when available.
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

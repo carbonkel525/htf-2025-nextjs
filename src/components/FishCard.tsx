@@ -93,15 +93,6 @@ export default function FishCard({ fish, onHover }: FishCardProps) {
           <PlusIcon className="mr-2 h-4 w-4" />
           Add fish to dex
         </ContextMenuItem>
-        <ContextMenuSeparator className="bg-panel-border" />
-        <ContextMenuItem
-          onClick={() => handleDelete(fish.id)}
-          variant="destructive"
-          className="focus:bg-danger-red/20 focus:text-danger-red cursor-pointer"
-        >
-          <TrashIcon className="mr-2 h-4 w-4" />
-          Delete fish
-        </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );
