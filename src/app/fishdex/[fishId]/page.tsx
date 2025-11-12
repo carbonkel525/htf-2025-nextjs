@@ -25,10 +25,13 @@ export default async function FishDetailPage({ params }: FishDetailPageProps) {
   }
 
   // Fetch fish from database (join with fish table)
+  // fishId can be either a fish id or a dexEntry id
   const dexEntry = await db
     .select({
       id: fishDex.id,
       fishId: fishDex.fishId,
+      cpScore: fishDex.cpScore,
+      catchAttempts: fishDex.catchAttempts,
       createdAt: fishDex.createdAt,
       fish: {
         id: fish.id,
@@ -42,7 +45,13 @@ export default async function FishDetailPage({ params }: FishDetailPageProps) {
     })
     .from(fishDex)
     .innerJoin(fish, eq(fishDex.fishId, fish.id))
-    .where(and(eq(fishDex.userId, session.user.id), eq(fishDex.fishId, fishId)))
+    .where(
+      and(
+        eq(fishDex.userId, session.user.id),
+        // Try to match by dexEntry id first, then fallback to fishId
+        eq(fishDex.id, fishId)
+      )
+    )
     .limit(1);
 
   if (dexEntry.length === 0) {
@@ -51,7 +60,7 @@ export default async function FishDetailPage({ params }: FishDetailPageProps) {
 
   const entry = dexEntry[0];
 
-  // Transform to Fish type format
+  // Transform to Fish type format with CP score
   const fishData: Fish = {
     id: entry.fish.id,
     name: entry.fish.name,
@@ -67,6 +76,12 @@ export default async function FishDetailPage({ params }: FishDetailPageProps) {
             timestamp: entry.fish.latestSightingTimestamp,
           }
         : null,
+    dexEntry: {
+      id: entry.id,
+      cpScore: entry.cpScore,
+      catchAttempts: entry.catchAttempts,
+      caughtAt: entry.createdAt,
+    },
   };
 
   const isCollected = true; // If we found it in the DB, it's collected

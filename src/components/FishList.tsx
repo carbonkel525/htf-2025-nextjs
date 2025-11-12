@@ -1,12 +1,18 @@
 import { Fish } from "@/types/fish";
+import { DivingCenter } from "@/types/diving-center";
 import FishCard from "./FishCard";
 
 interface FishListProps {
   fishes: Fish[];
   onFishHover: (fishId: string | null) => void;
+  selectedDivingCenter?: DivingCenter | null;
 }
 
-export default function FishList({ fishes, onFishHover }: FishListProps) {
+export default function FishList({
+  fishes,
+  onFishHover,
+  selectedDivingCenter,
+}: FishListProps) {
   return (
     <div className="w-full h-full bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)] border-2 border-panel-border shadow-[--shadow-cockpit] backdrop-blur-[10px] overflow-hidden flex flex-col">
       {/* Section Header */}
@@ -32,11 +38,29 @@ export default function FishList({ fishes, onFishHover }: FishListProps) {
 
       {/* Scrollable Fish Grid */}
       <div className="flex-1 overflow-y-auto px-6 py-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {fishes.map((fish) => (
-            <FishCard key={fish.id} fish={fish} onHover={onFishHover} />
-          ))}
-        </div>
+        {!selectedDivingCenter && (
+          <div className="text-center py-8 text-text-secondary font-mono text-sm">
+            Select a diving center to see available fish
+          </div>
+        )}
+        {selectedDivingCenter && fishes.length === 0 && (
+          <div className="text-center py-8 text-text-secondary font-mono text-sm">
+            No fish found within {selectedDivingCenter.radiusKm ?? 2.8}km of{" "}
+            {selectedDivingCenter.name}
+          </div>
+        )}
+        {selectedDivingCenter && fishes.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {fishes.map((fish) => (
+              <FishCard
+                key={fish.id}
+                fish={fish}
+                onHover={onFishHover}
+                selectedDivingCenter={selectedDivingCenter}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

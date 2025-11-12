@@ -25,6 +25,8 @@ export default async function FishDex() {
     .select({
       id: fishDex.id,
       fishId: fishDex.fishId,
+      cpScore: fishDex.cpScore,
+      catchAttempts: fishDex.catchAttempts,
       createdAt: fishDex.createdAt,
       fish: {
         id: fish.id,
@@ -40,7 +42,7 @@ export default async function FishDex() {
     .innerJoin(fish, eq(fishDex.fishId, fish.id))
     .where(eq(fishDex.userId, session.user.id));
 
-  // Transform to Fish type format
+  // Transform to Fish type format with CP score
   const collectedFishes: Fish[] = userFishDex.map((entry) => ({
     id: entry.fish.id,
     name: entry.fish.name,
@@ -56,6 +58,12 @@ export default async function FishDex() {
             timestamp: entry.fish.latestSightingTimestamp,
           }
         : null,
+    dexEntry: {
+      id: entry.id,
+      cpScore: entry.cpScore,
+      catchAttempts: entry.catchAttempts,
+      caughtAt: entry.createdAt,
+    },
   }));
 
   // Sort by rarity (rarest first)

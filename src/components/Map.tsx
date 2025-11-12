@@ -1,14 +1,16 @@
 "use client";
 
-import { useRef } from "react";
-import Map, { MapRef } from "react-map-gl/maplibre";
+import { useRef, useEffect } from "react";
+import Map, { MapRef, Marker } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Fish } from "@/types/fish";
+import { DivingCenter } from "@/types/diving-center";
 import FishMarker from "./FishMarker";
 
 interface MapComponentProps {
   fishes: Fish[];
   hoveredFishId: string | null;
+  selectedDivingCenter?: DivingCenter | null;
 }
 
 const calculateMapCenter = (fishes: Fish[]) => {
@@ -41,11 +43,23 @@ const calculateMapCenter = (fishes: Fish[]) => {
 export default function MapComponent({
   fishes,
   hoveredFishId,
+  selectedDivingCenter,
 }: MapComponentProps) {
   const mapRef = useRef<MapRef>(null);
   const { latitude, longitude } = calculateMapCenter(fishes);
 
   const isAnyHovered = hoveredFishId !== null;
+
+  // Zoom to diving center when selected
+  useEffect(() => {
+    if (selectedDivingCenter && mapRef.current) {
+      mapRef.current.flyTo({
+        center: [selectedDivingCenter.longitude, selectedDivingCenter.latitude],
+        zoom: 15,
+        duration: 1000,
+      });
+    }
+  }, [selectedDivingCenter]);
 
   return (
     <div className="w-full h-full relative">
@@ -59,16 +73,35 @@ export default function MapComponent({
         }}
         style={{ width: "100%", height: "100%" }}
       >
-        {fishes
-          .filter((fish) => fish.latestSighting)
-          .map((fish) => (
-            <FishMarker
-              key={fish.id}
-              fish={fish}
-              isHovered={fish.id === hoveredFishId}
-              isAnyHovered={isAnyHovered}
-            />
-          ))}
+        {fishes.map((fish) => (
+          <FishMarker
+            key={fish.id}
+            fish={fish}
+            isHovered={fish.id === hoveredFishId}
+            isAnyHovered={isAnyHovered}
+          />
+        ))}
+        {/* Diving Center Marker */}
+        {selectedDivingCenter && (
+          <Marker
+            longitude={selectedDivingCenter.longitude}
+            latitude={selectedDivingCenter.latitude}
+          >
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-8 h-8 border-4 border-sonar-green rounded-full bg-sonar-green/20 animate-ping"></div>
+              </div>
+              <div className="relative w-6 h-6 border-2 border-sonar-green rounded-full bg-dark-navy flex items-center justify-center shadow-[--shadow-glow-common]">
+                <div className="w-3 h-3 bg-sonar-green rounded-full"></div>
+              </div>
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-dark-navy border border-sonar-green rounded text-xs whitespace-nowrap">
+                <div className="text-sonar-green font-bold font-mono">
+                  {selectedDivingCenter.name}
+                </div>
+              </div>
+            </div>
+          </Marker>
+        )}
       </Map>
 
       {/* Coordinate display overlay */}

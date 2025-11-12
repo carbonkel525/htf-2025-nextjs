@@ -76,21 +76,17 @@ export const fish = sqliteTable("fish", {
 });
 
 // Fish Dex table - user's collected fish references
-export const fishDex = sqliteTable(
-  "fishDex",
-  {
-    id: text("id").primaryKey(),
-    userId: text("userId")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    fishId: text("fishId")
-      .notNull()
-      .references(() => fish.id, { onDelete: "cascade" }),
-    createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
-    updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
-  },
-  (table) => ({
-    // Add unique constraint to prevent duplicate entries
-    uniqueUserFish: unique().on(table.userId, table.fishId),
-  })
-);
+// Allows multiple catches of the same fish with different CP scores
+export const fishDex = sqliteTable("fishDex", {
+  id: text("id").primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  fishId: text("fishId")
+    .notNull()
+    .references(() => fish.id, { onDelete: "cascade" }),
+  cpScore: integer("cpScore").notNull(), // CP score (0-1000)
+  catchAttempts: integer("catchAttempts").notNull(), // Number of attempts to catch
+  createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
+});
