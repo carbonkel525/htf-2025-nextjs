@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { Fish } from "@/types/fish";
+import { DivingCenter } from "@/types/diving-center";
 import { getRarityBadgeClass } from "@/utils/rarity";
 import {
   ContextMenu,
@@ -11,17 +12,29 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { PlusIcon, TrashIcon, AnchorIcon } from "lucide-react";
-import { addFishToDex, removeFishFromDex } from "@/api/fish";
+import { PlusIcon, TrashIcon, AnchorIcon, AlertCircleIcon } from "lucide-react";
+import {
+  addFishToDex,
+  removeFishFromDex,
+  isFishInDivingCenter,
+} from "@/api/fish";
 import FishingGameDialog from "@/components/FishingGameDialog";
 
 interface FishCardProps {
   fish: Fish;
   onHover?: (fishId: string | null) => void;
+  selectedDivingCenter?: DivingCenter | null;
 }
 
-export default function FishCard({ fish, onHover }: FishCardProps) {
+export default function FishCard({
+  fish,
+  onHover,
+  selectedDivingCenter,
+}: FishCardProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  const isFishInCenter =
+    !selectedDivingCenter || isFishInDivingCenter(fish, selectedDivingCenter);
 
   const handleCatch = async (caughtFish: Fish) => {
     try {
@@ -37,6 +50,17 @@ export default function FishCard({ fish, onHover }: FishCardProps) {
     // Only open dialog on left click, not right click
     if (e.button === 0 || e.type === "click") {
       e.preventDefault();
+      if (!selectedDivingCenter) {
+        // Show message that diving center needs to be selected
+        alert("Please select a diving center first to catch fish!");
+        return;
+      }
+      if (!isFishInCenter) {
+        alert(
+          "This fish is not within the selected diving center's area (2km radius)!"
+        );
+        return;
+      }
       setDialogOpen(true);
     }
   };
@@ -72,12 +96,20 @@ export default function FishCard({ fish, onHover }: FishCardProps) {
                 <div className="text-sm font-bold text-text-primary group-hover:text-sonar-green transition-colors mb-1">
                   {fish.name}
                 </div>
-                <div
-                  className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${getRarityBadgeClass(
-                    fish.rarity
-                  )}`}
-                >
-                  {fish.rarity}
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${getRarityBadgeClass(
+                      fish.rarity
+                    )}`}
+                  >
+                    {fish.rarity}
+                  </div>
+                  {selectedDivingCenter && !isFishInCenter && (
+                    <div className="flex items-center gap-1 text-[10px] text-danger-red font-mono">
+                      <AlertCircleIcon className="h-3 w-3" />
+                      OUT OF RANGE
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -110,8 +142,21 @@ export default function FishCard({ fish, onHover }: FishCardProps) {
         </ContextMenuTrigger>
         <ContextMenuContent className="bg-dark-navy border-panel-border">
           <ContextMenuItem
-            onClick={() => setDialogOpen(true)}
-            className="focus:bg-sonar-green/20 focus:text-sonar-green cursor-pointer text-text-primary"
+            onClick={() => {
+              if (!selectedDivingCenter) {
+                alert("Please select a diving center first!");
+                return;
+              }
+              if (!isFishInCenter) {
+                alert(
+                  "This fish is not within the selected diving center's area!"
+                );
+                return;
+              }
+              setDialogOpen(true);
+            }}
+            disabled={!selectedDivingCenter || !isFishInCenter}
+            className="focus:bg-sonar-green/20 focus:text-sonar-green cursor-pointer text-text-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <AnchorIcon className="mr-2 h-4 w-4" />
             Catch fish

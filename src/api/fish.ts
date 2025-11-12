@@ -1,4 +1,5 @@
 import { Fish } from "@/types/fish";
+import { DivingCenter } from "@/types/diving-center";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_FISH_API_URL ?? "http://localhost:5555/api";
@@ -75,3 +76,50 @@ export const removeFishFromDex = async (fishId: string) => {
 
   return response.json();
 };
+
+export const fetchDivingCenters = async (): Promise<DivingCenter[]> => {
+  const response = await fetch(buildApiUrl("/diving-centers"), {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch diving centers");
+  }
+
+  return response.json();
+};
+
+// Calculate distance between two points in degrees (Haversine approximation for small distances)
+export function calculateDistance(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  const R = 6371; // Earth's radius in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c; // Distance in km
+}
+
+// Check if a fish is within a diving center's area (default radius: 2km)
+export function isFishInDivingCenter(
+  fish: Fish,
+  center: DivingCenter,
+  radiusKm: number = 2
+): boolean {
+  const distance = calculateDistance(
+    fish.latestSighting.latitude,
+    fish.latestSighting.longitude,
+    center.latitude,
+    center.longitude
+  );
+  return distance <= radiusKm;
+}
