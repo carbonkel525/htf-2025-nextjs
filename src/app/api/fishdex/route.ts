@@ -17,11 +17,34 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { fishId } = body;
+    const { fishId, cpScore, catchAttempts } = body;
 
     if (!fishId) {
       return NextResponse.json(
         { error: "Fish ID is required" },
+        { status: 400 }
+      );
+    }
+
+    if (cpScore === undefined || catchAttempts === undefined) {
+      return NextResponse.json(
+        { error: "CP score and catch attempts are required" },
+        { status: 400 }
+      );
+    }
+
+    // Validate CP score range (0-1000)
+    if (cpScore < 0 || cpScore > 1000) {
+      return NextResponse.json(
+        { error: "CP score must be between 0 and 1000" },
+        { status: 400 }
+      );
+    }
+
+    // Validate catch attempts (minimum 1)
+    if (catchAttempts < 1) {
+      return NextResponse.json(
+        { error: "Catch attempts must be at least 1" },
         { status: 400 }
       );
     }
@@ -40,28 +63,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if already in dex
-    const existing = await db
-      .select()
-      .from(fishDex)
-      .where(
-        and(eq(fishDex.userId, session.user.id), eq(fishDex.fishId, fishId))
-      )
-      .limit(1);
+    // Note: We removed the unique constraint, so users can have multiple catches of the same fish
+    // Each catch will have its own CP score based on performance
 
-    if (existing.length > 0) {
-      return NextResponse.json(
-        { error: "Fish already in dex" },
-        { status: 409 }
-      );
-    }
-
-    // Add to dex (just reference to fish table)
+    // Add to dex with CP score and catch attempts
     const now = new Date();
     await db.insert(fishDex).values({
       id: nanoid(),
       userId: session.user.id,
       fishId,
+      cpScore,
+      catchAttempts,
       createdAt: now,
       updatedAt: now,
     });
@@ -91,6 +103,8 @@ export async function GET(request: NextRequest) {
       .select({
         id: fishDex.id,
         fishId: fishDex.fishId,
+        cpScore: fishDex.cpScore,
+        catchAttempts: fishDex.catchAttempts,
         createdAt: fishDex.createdAt,
         fish: {
           id: fish.id,
@@ -106,7 +120,7 @@ export async function GET(request: NextRequest) {
       .innerJoin(fish, eq(fishDex.fishId, fish.id))
       .where(eq(fishDex.userId, session.user.id));
 
-    // Transform to Fish type format
+    // Transform to Fish type format with CP score
     const fishes = userFishDex.map((entry) => ({
       id: entry.fish.id,
       name: entry.fish.name,
@@ -116,6 +130,12 @@ export async function GET(request: NextRequest) {
         latitude: entry.fish.latestSightingLatitude,
         longitude: entry.fish.latestSightingLongitude,
         timestamp: entry.fish.latestSightingTimestamp,
+      },
+      dexEntry: {
+        id: entry.id,
+        cpScore: entry.cpScore,
+        catchAttempts: entry.catchAttempts,
+        caughtAt: entry.createdAt,
       },
     }));
 

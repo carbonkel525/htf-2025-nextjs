@@ -11,13 +11,14 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AnchorIcon, TrophyIcon, Loader2Icon } from "lucide-react";
+import { calculateCPScore } from "@/utils/cp-score";
 import Confetti from "./Confetti";
 
 interface FishingGameDialogProps {
   fish: Fish;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCatch: (fish: Fish) => Promise<void>;
+  onCatch: (fish: Fish, cpScore: number, catchAttempts: number) => Promise<void>;
 }
 
 // Calculate fish weight based on rarity (in kg)
@@ -55,6 +56,7 @@ export default function FishingGameDialog({
   const [progress, setProgress] = useState(0);
   const [direction, setDirection] = useState(1);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [catchAttempts, setCatchAttempts] = useState(0);
   const animationFrameRef = useRef<number>();
   const lastTimeRef = useRef<number>(0);
   const weight = calculateFishWeight(fish.rarity);
@@ -67,6 +69,7 @@ export default function FishingGameDialog({
     setProgress(0);
     setDirection(1);
     setShowConfetti(false);
+    setCatchAttempts((prev) => prev + 1); // Increment attempts each time game starts
     lastTimeRef.current = performance.now();
   }, []);
 
@@ -92,12 +95,14 @@ export default function FishingGameDialog({
   const handleAddToDex = async () => {
     setGameState("adding");
     try {
-      await onCatch(fish);
+      const cpScore = calculateCPScore(catchAttempts);
+      await onCatch(fish, cpScore, catchAttempts);
       // Close dialog after successful add
       setTimeout(() => {
         onOpenChange(false);
         setGameState("idle");
         setShowConfetti(false);
+        setCatchAttempts(0); // Reset attempts for next catch
       }, 1000);
     } catch (error) {
       console.error("Error adding fish to dex:", error);
@@ -151,6 +156,7 @@ export default function FishingGameDialog({
       setGameState("idle");
       setProgress(0);
       setShowConfetti(false);
+      setCatchAttempts(0);
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
@@ -250,6 +256,30 @@ export default function FishingGameDialog({
                 </div>
                 <div className="text-sm text-text-primary font-mono">
                   You successfully caught {fish.name} ({weight} kg)!
+                </div>
+                <div className="border border-panel-border rounded-lg p-3 bg-[color-mix(in_srgb,var(--color-dark-navy)_85%,transparent)]">
+                  <div className="text-xs text-text-secondary font-mono mb-2">
+                    CATCH STATS
+                  </div>
+                  <div className="flex items-center justify-center gap-4">
+                    <div>
+                      <div className="text-xs text-text-secondary font-mono">
+                        Attempts
+                      </div>
+                      <div className="text-lg font-bold text-sonar-green font-mono">
+                        {catchAttempts}
+                      </div>
+                    </div>
+                    <div className="w-px h-8 bg-panel-border"></div>
+                    <div>
+                      <div className="text-xs text-text-secondary font-mono">
+                        CP Score
+                      </div>
+                      <div className="text-lg font-bold text-sonar-green font-mono">
+                        {calculateCPScore(catchAttempts)}
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <Button
                   onClick={handleAddToDex}

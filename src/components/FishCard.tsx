@@ -36,9 +36,13 @@ export default function FishCard({
   const isFishInCenter =
     !selectedDivingCenter || isFishInDivingCenter(fish, selectedDivingCenter);
 
-  const handleCatch = async (caughtFish: Fish) => {
+  const handleCatch = async (
+    caughtFish: Fish,
+    cpScore: number,
+    catchAttempts: number
+  ) => {
     try {
-      await addFishToDex(caughtFish);
+      await addFishToDex(caughtFish, cpScore, catchAttempts);
       // Success - dialog will close automatically
     } catch (error) {
       console.error("Error adding fish:", error);

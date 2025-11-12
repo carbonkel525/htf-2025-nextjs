@@ -8,6 +8,12 @@ export interface Fish {
     longitude: number;
     timestamp: string;
   };
+  dexEntry?: {
+    id: string;
+    cpScore: number;
+    catchAttempts: number;
+    caughtAt: Date | string;
+  };
 }
 
 export type Rarity = "COMMON" | "RARE" | "EPIC";

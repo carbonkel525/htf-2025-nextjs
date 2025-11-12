@@ -61,13 +61,17 @@ export default function FishDetailClient({
       setIsProcessing(true);
 
       if (isCollected) {
-        const result = await removeFishFromDex(fish.id);
+        // Use dexEntry id if available, otherwise use fish id
+        const entryId = fish.dexEntry?.id || fish.id;
+        const result = await removeFishFromDex(entryId);
         console.log("Delete result:", result);
         setIsCollected(false);
         // Navigate back to fishdex page after deletion
         router.push("/fishdex");
       } else {
-        await addFishToDex(fish);
+        // Note: Adding from detail page should go through fishing game
+        // For now, we'll use default values (this should ideally open the fishing game)
+        await addFishToDex(fish, 1000, 1);
         setIsCollected(true);
         router.refresh();
       }
@@ -147,7 +151,7 @@ export default function FishDetailClient({
                   🐟
                 </div>
               )}
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-6">
+              <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/70 to-transparent p-6">
                 <div className="text-3xl font-bold text-sonar-green font-mono">
                   {fish.name}
                 </div>
@@ -178,6 +182,32 @@ export default function FishDetailClient({
                 {collectedAtLabel && (
                   <div className="text-xs text-text-secondary font-mono mt-2">
                     Collected {collectedAtLabel}
+                  </div>
+                )}
+                {fish.dexEntry && (
+                  <div className="mt-4 pt-4 border-t border-panel-border">
+                    <div className="text-xs font-mono text-text-secondary uppercase tracking-wide mb-2">
+                      CP Score
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div>
+                        <div className="text-2xl font-bold text-sonar-green font-mono">
+                          {fish.dexEntry.cpScore}
+                        </div>
+                        <div className="text-xs text-text-secondary font-mono">
+                          / 1000
+                        </div>
+                      </div>
+                      <div className="w-px h-8 bg-panel-border"></div>
+                      <div>
+                        <div className="text-sm font-bold text-text-primary font-mono">
+                          {fish.dexEntry.catchAttempts}
+                        </div>
+                        <div className="text-xs text-text-secondary font-mono">
+                          attempt{fish.dexEntry.catchAttempts !== 1 ? "s" : ""}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

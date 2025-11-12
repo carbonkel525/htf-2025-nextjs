@@ -22,32 +22,33 @@ export async function DELETE(
 
     console.log("Deleting fish from dex:", { fishId, userId: session.user.id });
 
-    // First check if the entry exists
+    // fishId is now the dexEntry id (not the fish id)
+    // First check if the entry exists and belongs to the user
     const existing = await db
       .select()
       .from(fishDex)
       .where(
         and(
           eq(fishDex.userId, session.user.id),
-          eq(fishDex.fishId, fishId)
+          eq(fishDex.id, fishId)
         )
       )
       .limit(1);
 
     if (existing.length === 0) {
       return NextResponse.json(
-        { error: "Fish not found in dex" },
+        { error: "Fish entry not found in dex" },
         { status: 404 }
       );
     }
 
-    // Delete from dex
+    // Delete the specific dex entry
     await db
       .delete(fishDex)
       .where(
         and(
           eq(fishDex.userId, session.user.id),
-          eq(fishDex.fishId, fishId)
+          eq(fishDex.id, fishId)
         )
       );
 

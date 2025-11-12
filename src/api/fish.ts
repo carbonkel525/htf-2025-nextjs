@@ -45,7 +45,11 @@ export const fetchFishById = async (fishId: string) => {
   return fallbackFish;
 };
 
-export const addFishToDex = async (fish: Fish) => {
+export const addFishToDex = async (
+  fish: Fish,
+  cpScore: number,
+  catchAttempts: number
+) => {
   const response = await fetch("/api/fishdex", {
     method: "POST",
     headers: {
@@ -53,6 +57,8 @@ export const addFishToDex = async (fish: Fish) => {
     },
     body: JSON.stringify({
       fishId: fish.id,
+      cpScore,
+      catchAttempts,
     }),
   });
 
@@ -64,8 +70,8 @@ export const addFishToDex = async (fish: Fish) => {
   return response.json();
 };
 
-export const removeFishFromDex = async (fishId: string) => {
-  const response = await fetch(`/api/fishdex/${fishId}`, {
+export const removeFishFromDex = async (dexEntryId: string) => {
+  const response = await fetch(`/api/fishdex/${dexEntryId}`, {
     method: "DELETE",
   });
 

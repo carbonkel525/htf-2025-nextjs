@@ -127,7 +127,7 @@ function FishCardWithErrorHandling({
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
-        <Link href={`/fishdex/${fish.id}`}>
+        <Link href={`/fishdex/${fish.dexEntry?.id || fish.id}`}>
           <div className="border border-panel-border shadow-[--shadow-cockpit-border] rounded-lg overflow-hidden hover:border-sonar-green transition-all duration-300 cursor-pointer group bg-[color-mix(in_srgb,var(--color-dark-navy)_90%,transparent)]">
             {/* Fish Image */}
             <div className="relative w-full aspect-square bg-deep-ocean overflow-hidden">
@@ -162,6 +162,22 @@ function FishCardWithErrorHandling({
               <div className="text-sm font-bold text-text-primary group-hover:text-sonar-green transition-colors mb-2 font-mono">
                 {fish.name}
               </div>
+              {fish.dexEntry && (
+                <div className="mb-2 pb-2 border-b border-panel-border">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-text-secondary font-mono">
+                      CP Score:
+                    </span>
+                    <span className="text-lg font-bold text-sonar-green font-mono">
+                      {fish.dexEntry.cpScore}
+                    </span>
+                  </div>
+                  <div className="text-[10px] text-text-secondary font-mono mt-1">
+                    {fish.dexEntry.catchAttempts} attempt
+                    {fish.dexEntry.catchAttempts !== 1 ? "s" : ""}
+                  </div>
+                </div>
+              )}
               <div className="text-xs font-mono space-y-1">
                 <div className="flex justify-between text-text-secondary">
                   <span>LAT:</span>
@@ -193,7 +209,7 @@ function FishCardWithErrorHandling({
       </ContextMenuTrigger>
       <ContextMenuContent className="bg-dark-navy border-panel-border">
         <ContextMenuItem
-          onClick={() => onDelete(fish.id)}
+          onClick={() => onDelete(fish.dexEntry?.id || fish.id)}
           variant="destructive"
           className="focus:bg-danger-red/20 focus:text-danger-red cursor-pointer"
         >
