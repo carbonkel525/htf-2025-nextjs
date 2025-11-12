@@ -109,6 +109,17 @@
   }
 }
 
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
 /* Animation utility classes */
 .animate-ping-common {
   animation: ping-common 2s cubic-bezier(0, 0, 0.2, 1) infinite;
